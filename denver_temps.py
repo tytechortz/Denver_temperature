@@ -49,26 +49,52 @@ app.layout = html.Div([
             html.Div([
                 dcc.Dropdown(id='year-picker1',options=years),
             ],
-            style={'width': '48%', 'display': 'inline-block'}), 
+            style={'width': '40%', 'display': 'inline-block'}), 
             html.Div([
                 dcc.Dropdown(id='year-picker2',options=years),
             ],
-            style={'width': '48%', 'float': 'right', 'display': 'inline-block'}),
+            style={'width': '40%', 'float': 'right', 'display': 'inline-block'}),
             
     ]),
     html.Div([
-        html.H3(id='stats-for-year1')
+        html.H3(
+            id='stats-for-year1',
+            style={'color': 'blue', 'font-size':20, 'width': '48%', 'display':'inline-block'}),
+        html.H3(
+            id='stats-for-year2',
+            style={'color': 'blue', 'font-size':20, 'width': '48%', 'display':'inline-block'}),
     ]),
+
     html.Div([
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '24%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
             id='Maximum-yearly-temp-1',
             children='Maximum-yearly-temp-1:'        
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '24%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            id='Maximum-yearly-temp-2',
+            children='Maximium-yearly-temp-2:'        
+        ),
+        html.Div(
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            id='90-degree-days-1',
+            children='90-degree-days-1:'      
+        ),
+        html.Div(
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            id='90-degree-days-2',
+            children='90-degree-days-2:'        
+        ),
+        html.Div(
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
             id='80-degree-days-1',
-            children='80-degree-days-1:'        
+            children='80-degree-days-1:'      
+        ),
+        html.Div(
+            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            id='80-degree-days-2',
+            children='80-degree-days-2:'        
         ),
     ])
 
@@ -107,41 +133,66 @@ def update_figure(selected_year1, selected_year2):
               [Input('year-picker1', 'value')])
 def update_layout_a(selected_year1):
     filtered_df1 = df[df.index.year == selected_year1]
-    # td = datetime.now().day
-    # tm = datetime.now().month
-    # ty = datetime.now().year
-    # dfd = df[df.index.day == td]
-    # dfdm = dfd[dfd.index.month == tm]
-    # dfdmy = dfdm[dfdm.index.year == ty]
-    # print(dfdmy)
     annual_max_temp1 = filtered_df1['TMAX'].max()
     return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp1)
+
+@app.callback(Output('Maximum-yearly-temp-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_a(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    annual_max_temp2 = filtered_df1['TMAX'].max()
+    return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp2)
 
 @app.callback(Output('stats-for-year1', 'children'),
               [Input('year-picker1', 'value')])
 def update_layout_b(selected_year1):
     return 'Stats for {}'.format(selected_year1)
 
-@app.callback(Output('80-degree-days-1', 'children'),
+@app.callback(Output('stats-for-year2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_b(selected_year2):
+    return 'Stats for {}'.format(selected_year2)
+
+@app.callback(Output('90-degree-days-1', 'children'),
               [Input('year-picker1', 'value')])
 def update_layout_c(selected_year1):
     filtered_df1 = df[df.index.year == selected_year1]
     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
     filtered_df1 = filtered_df1.set_index('datetime')
-    
-    td = datetime.now().day
-    tm = datetime.now().month
-    ty = datetime.now().year
-    ty = datetime.now().year
+    df_max = filtered_df1.resample('D').max()
+    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
+    return 'Total Days Above 90 : {}'.format(days_over_90)
+
+@app.callback(Output('90-degree-days-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_d(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
+    return 'Total Days Above 90 : {}'.format(days_over_90)
 
 
-    # # dfd = filtered_df1[filtered_df1['DATE'].day == td]
-    
-    # dfy = filtered_df1[filtered_df1.index.year== ty]
-    # print(dfy)
+@app.callback(Output('80-degree-days-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_e(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
     df_max = filtered_df1.resample('D').max()
     days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
-    return 'Total Days Above 80 = {}'.format(days_over_80)
+    return 'Total Days Above 80 : {}'.format(days_over_80)
+
+@app.callback(Output('80-degree-days-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_f(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
+    return 'Total Days Above 80 : {}'.format(days_over_80)
 
 
 if __name__ == '__main__':
