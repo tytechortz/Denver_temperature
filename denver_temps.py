@@ -62,9 +62,14 @@ app.layout = html.Div([
     html.Div([
         html.Div(
             style={'color': 'red', 'font-size':20, 'width': '24%', 'display':'inline-block'},
-            id='90-degree-days-1',
-            children='90-degree-days-1:'        
-        )
+            id='Maximum-yearly-temp-1',
+            children='Maximum-yearly-temp-1:'        
+        ),
+        html.Div(
+            style={'color': 'red', 'font-size':20, 'width': '24%', 'display':'inline-block'},
+            id='80-degree-days-1',
+            children='80-degree-days-1:'        
+        ),
     ])
 
 ])
@@ -98,7 +103,7 @@ def update_figure(selected_year1, selected_year2):
         )
     }
 
-@app.callback(Output('90-degree-days-1', 'children'),
+@app.callback(Output('Maximum-yearly-temp-1', 'children'),
               [Input('year-picker1', 'value')])
 def update_layout_a(selected_year1):
     filtered_df1 = df[df.index.year == selected_year1]
@@ -116,6 +121,27 @@ def update_layout_a(selected_year1):
               [Input('year-picker1', 'value')])
 def update_layout_b(selected_year1):
     return 'Stats for {}'.format(selected_year1)
+
+@app.callback(Output('80-degree-days-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_c(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    
+    td = datetime.now().day
+    tm = datetime.now().month
+    ty = datetime.now().year
+    ty = datetime.now().year
+
+
+    # # dfd = filtered_df1[filtered_df1['DATE'].day == td]
+    
+    # dfy = filtered_df1[filtered_df1.index.year== ty]
+    # print(dfy)
+    df_max = filtered_df1.resample('D').max()
+    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
+    return 'Total Days Above 80 = {}'.format(days_over_80)
 
 
 if __name__ == '__main__':
