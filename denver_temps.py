@@ -212,14 +212,7 @@ def update_graph_a(selected_year1):
     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
     filtered_df1 = filtered_df1.set_index('datetime')
     print(filtered_df1)
-    # td = datetime.now().day
-    # tm = datetime.now().month
-    # ty = datetime.now().year
-    # ty = datetime.now().year
-    # dfy = df[df.index.year == ]
-    # df_max = filtered_df1.resample('D').max()
-    
-    
+   
     fig = go.Figure(
         data = [go.Histogram(
             x=filtered_df1['TMAX'],
@@ -234,16 +227,10 @@ def update_graph_b(selected_year2):
     filtered_df2 = df[df.index.year == selected_year2]
     filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
     filtered_df2 = filtered_df2.set_index('datetime')
-    # td = datetime.now().day
-    # tm = datetime.now().month
-    # ty = datetime.now().year
-    # ty = datetime.now().year
-    # dfy = df[df.index.year == ty]
-    
     
     fig = go.Figure(
         data = [go.Histogram(
-            x=filtered_df2.index.day,
+            x=filtered_df2['TMAX'],
             xbins=dict(size=10)
         )])
     return fig
