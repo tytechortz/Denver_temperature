@@ -44,7 +44,7 @@ app.layout = html.Div([
     ),
     html.Div([
         html.H3('Denver Max Daily Temp', style={'text-align': 'center', 'color': 'blue'}),
-        dcc.Graph(id='graph'),
+        dcc.Graph(id='graph', style={'height':1200}),
         
             html.Div([
                 dcc.Dropdown(id='year-picker1',options=years),
@@ -59,53 +59,61 @@ app.layout = html.Div([
     html.Div([
         html.H3(
             id='stats-for-year1',
-            style={'color': 'blue', 'font-size':20, 'width': '48%', 'display':'inline-block'}),
+            style={'color': 'blue', 'font-size':20, 'width': '55%', 'display':'inline-block'}),
         html.H3(
             id='stats-for-year2',
-            style={'color': 'blue', 'font-size':20, 'width': '48%', 'display':'inline-block'}),
+            style={'color': 'blue', 'font-size':20, 'width': '40%', 'display':'inline-block'}),
     ]),
 
     html.Div([
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '55%', 'display':'inline-block'},
             id='Maximum-yearly-temp-1',
             children='Maximum-yearly-temp-1:'        
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '40%', 'display':'inline-block'},
             id='Maximum-yearly-temp-2',
             children='Maximium-yearly-temp-2:'        
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '55%', 'display':'inline-block'},
             id='90-degree-days-1',
             children='90-degree-days-1:'      
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '40%', 'display':'inline-block'},
             id='90-degree-days-2',
             children='90-degree-days-2:'        
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '55%', 'display':'inline-block'},
             id='80-degree-days-1',
             children='80-degree-days-1:'      
         ),
         html.Div(
-            style={'color': 'red', 'font-size':20, 'width': '48%', 'display':'inline-block'},
+            style={'color': 'red', 'font-size':20, 'width': '45%', 'display':'inline-block'},
             id='80-degree-days-2',
             children='80-degree-days-2:'        
         ),
     ]),
 
     html.Div([
+        # dcc.Graph(
+        #     id='year-1-histogram',
+        #     style={'width': '45%', 'display': 'inline-block'},
+        # ),
+        # dcc.Graph(
+        #     id='year-2-histogram',
+        #     style={'width': '45%', 'display': 'inline-block', 'float': 'right'},
+        # ),
         dcc.Graph(
-            id='year-1-histogram',
-            style={'width':600},
+            id='combined-histogram-max',
+            style={'width': '45%', 'display': 'inline-block'},
         ),
         dcc.Graph(
-            id='year-2-histogram',
-            style={'width':600},
+            id='combined-histogram-min',
+            style={'width': '45%', 'display': 'inline-block', 'float': 'right'},
         ),    
     ])
 
@@ -205,34 +213,98 @@ def update_layout_h(selected_year2):
     days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
     return 'Total Days Above 80 : {}'.format(days_over_80)
 
-@app.callback(Output('year-1-histogram','figure'),
-              [Input('year-picker1', 'value')])
-def update_graph_a(selected_year1):
+# @app.callback(Output('year-1-histogram','figure'),
+#               [Input('year-picker1', 'value')])
+# def update_graph_a(selected_year1):
+#     filtered_df1 = df[df.index.year == selected_year1]
+#     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+#     filtered_df1 = filtered_df1.set_index('datetime')
+#     print(filtered_df1)
+   
+#     fig = go.Figure(
+#         data = [go.Histogram(
+#             x=filtered_df1['TMAX'],
+#             xbins=dict(size=10)
+#         )])
+#     return fig
+
+# @app.callback(Output('year-2-histogram','figure'),
+#               [Input('year-picker2', 'value')])
+
+# def update_graph_b(selected_year2):
+#     filtered_df2 = df[df.index.year == selected_year2]
+#     filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
+#     filtered_df2 = filtered_df2.set_index('datetime')
+    
+#     fig = go.Figure(
+#         data = [go.Histogram(
+#             x=filtered_df2['TMAX'],
+#             xbins=dict(size=10)
+#         )])
+#     return fig
+
+@app.callback(Output('combined-histogram-max','figure'),
+              [Input('year-picker1', 'value'),
+              Input('year-picker2', 'value')])
+
+def update_graph_b(selected_year1,selected_year2):
     filtered_df1 = df[df.index.year == selected_year1]
     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
     filtered_df1 = filtered_df1.set_index('datetime')
-    print(filtered_df1)
-   
-    fig = go.Figure(
-        data = [go.Histogram(
-            x=filtered_df1['TMAX'],
-            xbins=dict(size=10)
-        )])
-    return fig
-
-@app.callback(Output('year-2-histogram','figure'),
-              [Input('year-picker2', 'value')])
-
-def update_graph_b(selected_year2):
     filtered_df2 = df[df.index.year == selected_year2]
     filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
     filtered_df2 = filtered_df2.set_index('datetime')
     
+    trace1 = go.Histogram(
+        x=filtered_df1['TMAX'],
+        opacity=.5,
+        xbins=dict(size=10)
+    )
+
+    trace2 = go.Histogram(
+        x=filtered_df2['TMAX'],
+        opacity=.5,
+        xbins=dict(size=10)
+    )
+
+    data = [trace1, trace2]
+
     fig = go.Figure(
-        data = [go.Histogram(
-            x=filtered_df2['TMAX'],
-            xbins=dict(size=10)
-        )])
+        data = data,
+        layout = go.Layout(barmode='overlay')
+        )
+    return fig
+
+@app.callback(Output('combined-histogram-min','figure'),
+              [Input('year-picker1', 'value'),
+              Input('year-picker2', 'value')])
+
+def update_graph_b(selected_year1,selected_year2):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    filtered_df2 = df[df.index.year == selected_year2]
+    filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
+    filtered_df2 = filtered_df2.set_index('datetime')
+    
+    trace1 = go.Histogram(
+        x=filtered_df1['TMIN'],
+        opacity=.5,
+        xbins=dict(size=10)
+    )
+
+    trace2 = go.Histogram(
+        x=filtered_df2['TMIN'],
+        opacity=.5,
+        xbins=dict(size=10)
+    )
+
+    data = [trace1, trace2]
+
+    fig = go.Figure(
+        data = data,
+        layout = go.Layout(barmode='overlay')
+        )
     return fig
 
 if __name__ == '__main__':
