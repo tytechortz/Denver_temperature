@@ -19,7 +19,9 @@ df = pd.read_csv('../../stapleton.csv')
 
 df['datetime']= pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
-# print(df.index.year)
+df_ya_max = df.resample('Y').mean()
+df5 = df_ya_max[:-1]
+
 
 years = []
 for YEAR in df.index.year.unique():
@@ -138,11 +140,72 @@ app.layout = html.Div([
                 xaxis = {'title': 'Date'},
                 yaxis = {'title': 'Temp'},
                 hovermode = 'closest',
-                height = 2000
+                height = 1000
             ),
         }
     ),
-    ])
+    ]),
+
+    html.Div([
+    
+    dcc.Graph(
+        id = 'all-avg-temps',
+
+        # trace1(go.Scatter(
+        #     x = df5.index,
+        #     y = df5['TMAX'],
+        #     mode = 'lines + markers'
+        # )),
+        # trace2(go.Scatter(
+        #     x = df5.index,
+        #     y = df5['TMIN'],
+        #     mode = 'lines + markers'
+        # )),
+        figure={
+            'data': [
+                {
+                    'x': df5.index,
+                    'y': df5['TMAX'],
+                },
+            ],
+            'layout': go.Layout(
+                title = 'Denver Yearly Avg Max and Min Temp, 1948-Present',
+                xaxis = {'title': 'Date'},
+                yaxis = {'title': 'Temp'},
+                hovermode = 'closest',
+                height = 1000
+            ),
+        },
+    ),
+    dcc.Graph(
+        id = 'yearly-avg-min',
+        figure = {
+            'data': [go.Scatter(
+                x = df5.index,
+                y = df5['TMIN'],
+                mode = 'lines + markers'
+            )],
+            'layout': go.Layout(
+                title = 'Denver Yearly Avg Min Temp, 1948-Present',
+                xaxis = {'title': 'Date'},
+                yaxis = {'title': 'Temp'},
+                hovermode = 'closest',
+                height = 1000
+            ),
+        }
+    ),
+    ]),
+    # dcc.Graph(
+    #     id = 'heatmap',
+    #     figure = {
+    #         'data': [go.Heatmap(
+    #             x = df[df.index.year],
+    #             y = df[df.index.month],
+    #             z = df['TMAX']
+    #         )]
+    #     }
+    # ),
+    # ])
 
 ])
 
@@ -177,12 +240,12 @@ def update_figure(selected_year1, selected_year2):
 
 @app.callback(Output('stats-for-year1', 'children'),
               [Input('year-picker1', 'value')])
-def update_layout_f(selected_year1):
+def update_layout_i(selected_year1):
     return 'Stats for {}'.format(selected_year1)
 
 @app.callback(Output('stats-for-year2', 'children'),
               [Input('year-picker2', 'value')])
-def update_layout_g(selected_year2):
+def update_layout_j(selected_year2):
     return 'Stats for {}'.format(selected_year2)
 
 @app.callback(Output('Maximum-yearly-temp-1', 'children'),
