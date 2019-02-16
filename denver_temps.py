@@ -22,6 +22,8 @@ df['datetime']= pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
 df_ya_max = df.resample('Y').mean()
 df5 = df_ya_max[:-1]
+allmax_rolling = df['TMAX'].rolling(window=365)
+allmax_rolling_mean = allmax_rolling.mean()
 
 
 years = []
@@ -133,7 +135,7 @@ app.layout = html.Div([
         figure = {
             'data': [go.Scatter(
                 x = df['DATE'],
-                y = df['TMAX'],
+                y = allmax_rolling_mean,
                 mode = 'lines'
             )],
             'layout': go.Layout(
@@ -182,59 +184,7 @@ app.layout = html.Div([
             ),
         }
     ),
-    # dcc.Graph(
-    #     id = 'all-avg-temps',
-
-        # trace1(go.Scatter(
-        #     x = df5.index,
-        #     y = df5['TMAX'],
-        #     mode = 'lines + markers'
-        # )),
-        # trace2(go.Scatter(
-        #     x = df5.index,
-        #     y = df5['TMIN'],
-        #     mode = 'lines + markers'
-        # )),
-        # figure={
-        #     'data': [
-        #         {
-        #             'x': df5.index,
-        #             'y': df5['TMAX'],
-        #             'name': 'Avg Max',
-        #             'mode': 'markers + lines'
-        #         },
-        #         {
-        #             'x': df5.index,
-        #             'y': df5['TMIN'],
-        #             'name': 'Avg Min',
-        #             'mode': 'markers + lines'
-        #         },
-                    
-        #     ],
-        #     'layout': go.Layout(
-        #         title = 'Denver Yearly Avg Max and Min Temp, 1948-Present',
-        #         xaxis = {'title': 'Date'},
-        #         yaxis = {'title': 'Temp'},
-        #         hovermode = 'closest',
-        #         height = 1000
-        #     ),
-        # },
-        
-    # ),
-    
     ]),
-    # dcc.Graph(
-    #     id = 'heatmap',
-    #     figure = {
-    #         'data': [go.Heatmap(
-    #             x = df[df.index.year],
-    #             y = df[df.index.month],
-    #             z = df['TMAX']
-    #         )]
-    #     }
-    # ),
-    # ])
-
 ])
 
 @app.callback(Output('graph', 'figure'),
@@ -248,12 +198,7 @@ def update_figure(selected_year1, selected_year2):
     min_rolling = filtered_df2['TMAX'].rolling(window=11)
     rolling_max = max_rolling.mean()
     rolling_min = min_rolling.mean()
-    # traces.append(go.Scatter(
-    #     # x=filtered_df1[filtered_df1.index.month],
-    #     y = filtered_df1['TMAX'],
-    #     mode = 'lines',
-    #     name = selected_year1
-    # ))
+
     traces.append(go.Scatter(
         y = rolling_max,
         name = selected_year1
