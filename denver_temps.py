@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output
 import time
 # import datetime
 from datetime import datetime
+from pandas import Series
 
 cnx = sqlite3.connect('denvertemps.db')
 
@@ -243,25 +244,31 @@ def update_figure(selected_year1, selected_year2):
     filtered_df1 = df[df.index.year == selected_year1]
     filtered_df2 = df[df.index.year == selected_year2]
     traces = []
+    max_rolling = filtered_df1['TMAX'].rolling(window=11)
+    min_rolling = filtered_df2['TMAX'].rolling(window=11)
+    rolling_max = max_rolling.mean()
+    rolling_min = min_rolling.mean()
+    # traces.append(go.Scatter(
+    #     # x=filtered_df1[filtered_df1.index.month],
+    #     y = filtered_df1['TMAX'],
+    #     mode = 'lines',
+    #     name = selected_year1
+    # ))
     traces.append(go.Scatter(
-            # x=filtered_df1[filtered_df1.index.month],
-            y=filtered_df1['TMAX'],
-            mode='lines',
-            name=selected_year1
-        ))
+        y = rolling_max,
+        name = selected_year1
+    ))
     traces.append(go.Scatter(
-            # x=filtered_df2['DATE'],
-            y=filtered_df2['TMAX'],
-            mode='lines',
-            name=selected_year2
-        ))
+        y = rolling_min,
+        name = selected_year2
+    ))
 
     return {
         'data': traces,
         'layout': go.Layout(
-            xaxis={'title': 'YEAR'},
-            yaxis={'title': 'TMAX'},
-            hovermode='closest'
+            xaxis = {'title': 'YEAR'},
+            yaxis = {'title': 'TMAX'},
+            hovermode = 'closest'
         )
     }
 
