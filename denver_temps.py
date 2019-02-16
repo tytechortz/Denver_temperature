@@ -147,35 +147,22 @@ app.layout = html.Div([
     ]),
 
     html.Div([
-    
     dcc.Graph(
-        id = 'all-avg-temps',
-
-        # trace1(go.Scatter(
-        #     x = df5.index,
-        #     y = df5['TMAX'],
-        #     mode = 'lines + markers'
-        # )),
-        # trace2(go.Scatter(
-        #     x = df5.index,
-        #     y = df5['TMIN'],
-        #     mode = 'lines + markers'
-        # )),
-        figure={
-            'data': [
-                {
-                    'x': df5.index,
-                    'y': df5['TMAX'],
-                },
-            ],
+        id = 'yearly-avg-max',
+        figure = {
+            'data': [go.Scatter(
+                x = df5.index,
+                y = df5['TMAX'],
+                mode = 'lines + markers'
+            )],
             'layout': go.Layout(
-                title = 'Denver Yearly Avg Max and Min Temp, 1948-Present',
+                title = 'Denver Yearly Avg Max Temp, 1948-Present',
                 xaxis = {'title': 'Date'},
                 yaxis = {'title': 'Temp'},
                 hovermode = 'closest',
                 height = 1000
             ),
-        },
+        }
     ),
     dcc.Graph(
         id = 'yearly-avg-min',
@@ -194,6 +181,46 @@ app.layout = html.Div([
             ),
         }
     ),
+    # dcc.Graph(
+    #     id = 'all-avg-temps',
+
+        # trace1(go.Scatter(
+        #     x = df5.index,
+        #     y = df5['TMAX'],
+        #     mode = 'lines + markers'
+        # )),
+        # trace2(go.Scatter(
+        #     x = df5.index,
+        #     y = df5['TMIN'],
+        #     mode = 'lines + markers'
+        # )),
+        # figure={
+        #     'data': [
+        #         {
+        #             'x': df5.index,
+        #             'y': df5['TMAX'],
+        #             'name': 'Avg Max',
+        #             'mode': 'markers + lines'
+        #         },
+        #         {
+        #             'x': df5.index,
+        #             'y': df5['TMIN'],
+        #             'name': 'Avg Min',
+        #             'mode': 'markers + lines'
+        #         },
+                    
+        #     ],
+        #     'layout': go.Layout(
+        #         title = 'Denver Yearly Avg Max and Min Temp, 1948-Present',
+        #         xaxis = {'title': 'Date'},
+        #         yaxis = {'title': 'Temp'},
+        #         hovermode = 'closest',
+        #         height = 1000
+        #     ),
+        # },
+        
+    # ),
+    
     ]),
     # dcc.Graph(
     #     id = 'heatmap',
