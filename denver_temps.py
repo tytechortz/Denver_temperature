@@ -1,6 +1,7 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import pandas as pd
 import sqlite3
@@ -14,7 +15,7 @@ from numpy import arange,array,ones
 
 cnx = sqlite3.connect('denvertemps.db')
 
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.GRID])
 
 # df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
 df = pd.read_csv('../../stapleton.csv')
@@ -40,7 +41,7 @@ xi = arange(0,year_count-1)
 
 # linear fit for Avg Max Temps
 def annual_min_fit():
-    xi = arange(0,71)
+    xi = arange(0,year_count)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
     return (slope*xi+intercept)
 
@@ -63,7 +64,7 @@ app.layout = html.Div([
     html.Div(
         className="app-header",
         children=[
-            html.Div('Denver Temperatures', className="app-header--title"),
+            html.Div('Denver Temperature Record', className="app-header--title"),
         ]
     ),
     html.Div(
@@ -73,7 +74,7 @@ app.layout = html.Div([
     ),
     html.Div([
         html.H3('Denver Max Daily Temp', style={'text-align': 'center', 'color': 'blue'}),
-        dcc.Graph(id='graph', style={'height':1250}),
+        dcc.Graph(id='graph', style={'height':700, 'width':1200}),
         
             html.Div([
                 dcc.Dropdown(id='year-picker1', options=years),
@@ -149,11 +150,11 @@ app.layout = html.Div([
     html.Div([
         dcc.Graph(
             id='combined-histogram-max',
-            style = {'width': '49%', 'display': 'inline-block', 'height': 1000},
+            style = {'width': 700, 'display': 'inline-block', 'height': 500},
         ),
         dcc.Graph(
             id='combined-histogram-min',
-            style={'width': '49%', 'display': 'inline-block', 'float': 'right', 'height': 1000},
+            style={'width': 700, 'display': 'inline-block', 'float': 'right', 'height': 500},
         ),    
     ]),
 
@@ -167,11 +168,13 @@ app.layout = html.Div([
                     'x' : df5.index, 
                     'y' : df5['TMAX'],
                     'mode' : 'lines + markers',
+                    'name' : 'Max Temp'
 
                 },
                 {
                     'x' : df5.index,
-                    'y' : annual_max_fit(), 
+                    'y' : annual_max_fit(),
+                    'name' : 'trend'
                 }
             ],
             'layout': go.Layout(
@@ -193,11 +196,16 @@ app.layout = html.Div([
                     'x' : df5.index, 
                     'y' : df5['TMIN'],
                     'mode' : 'lines + markers',
+                    'name' : 'Min Temp',
+                    # 'marker' : {
+                    #     dict(size=20)
+                    # }
 
                 },
                 {
                     'x' : df5.index,
                     'y' : annual_min_fit(), 
+                    'name' : 'Trend'
                 }
             ],
             'layout': go.Layout(
@@ -218,7 +226,8 @@ app.layout = html.Div([
             'data': [go.Scatter(
                 x = df['DATE'],
                 y = allmax_rolling_mean,
-                mode = 'lines'
+                mode = 'lines',
+                name = ''
             )],
             'layout': go.Layout(
                 title = 'Denver Daily Max T, 1948-Present',
@@ -343,7 +352,7 @@ def update_layout_h(selected_year2):
 
 @app.callback(Output('80-degree-days-1', 'children'),
               [Input('year-picker1', 'value')])
-def update_layout_i(selected_year1):
+def update_layout_m(selected_year1):
     filtered_df1 = df[df.index.year == selected_year1]
     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
     filtered_df1 = filtered_df1.set_index('datetime')
@@ -353,7 +362,7 @@ def update_layout_i(selected_year1):
 
 @app.callback(Output('Low-below-zero-1', 'children'),
               [Input('year-picker1', 'value')])
-def update_layout_j(selected_year1):
+def update_layout_n(selected_year1):
     filtered_df1 = df[df.index.year == selected_year1]
     filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
     filtered_df1 = filtered_df1.set_index('datetime')
@@ -397,13 +406,15 @@ def update_graph_a(selected_year1,selected_year2):
     trace1 = go.Histogram(
         x=filtered_df1['TMAX'],
         opacity=.5,
-        xbins=dict(size=10)
+        xbins=dict(size=10),
+        name = selected_year1
     )
 
     trace2 = go.Histogram(
         x=filtered_df2['TMAX'],
         opacity=.5,
-        xbins=dict(size=10)
+        xbins=dict(size=10),
+        name = selected_year2
     )
 
     data = [trace1, trace2]
@@ -429,15 +440,17 @@ def update_graph_b(selected_year1,selected_year2):
     filtered_df2 = filtered_df2.set_index('datetime')
     
     trace1 = go.Histogram(
-        x=filtered_df1['TMIN'],
-        opacity=.5,
-        xbins=dict(size=10)
+        x = filtered_df1['TMIN'],
+        opacity = .5,
+        xbins = dict(size = 10),
+        name = selected_year1
     )
 
     trace2 = go.Histogram(
-        x=filtered_df2['TMIN'],
-        opacity=.5,
-        xbins=dict(size=10)
+        x = filtered_df2['TMIN'],
+        opacity = .5,
+        xbins = dict(size=10),
+        name = selected_year2
     )
 
     data = [trace1, trace2]

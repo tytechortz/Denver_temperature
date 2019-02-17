@@ -11,3 +11,7 @@ Div {
 .year-picker1, .yearpicker2 {
     font-size: 20px
 }
+
+H1, H2, H3 {
+    text-align: center
+}
