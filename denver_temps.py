@@ -31,14 +31,28 @@ df5 = df_ya_max[:-1]
 allmax_rolling = df['TMAX'].rolling(window=365)
 allmax_rolling_mean = allmax_rolling.mean()
 
+startyr = 1948
+presentyr = datetime.now().year
+year_count = presentyr-startyr
+
+
+xi = arange(0,year_count-1)
+
 # linear fit for Avg Max Temps
 def annual_min_fit():
     xi = arange(0,71)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
     return (slope*xi+intercept)
 
+def annual_max_fit():
+    xi = arange(0,71)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
 
-
+def all_temp_fit():
+    xi = arange(0,71)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
 
 years = []
 for YEAR in df.index.year.unique():
@@ -145,6 +159,60 @@ app.layout = html.Div([
 
     html.Div([
     dcc.Graph(
+        style = {'width' : '60%'},
+        id = 'yearly-avg-max-trend',  
+        figure = {
+            'data': [
+                {
+                    'x' : df5.index, 
+                    'y' : df5['TMAX'],
+                    'mode' : 'lines + markers',
+
+                },
+                {
+                    'x' : df5.index,
+                    'y' : annual_max_fit(), 
+                }
+            ],
+            'layout': go.Layout(
+                title = 'Denver Yearly Avg Max Temp With Linear Trendline, 1948-Present',
+                xaxis = {'title': 'Date'},
+                yaxis = {'title': 'Temp'},
+                hovermode = 'closest',
+                height = 1000     
+            ), 
+        }
+    ),
+
+    dcc.Graph(
+        style = {'width' : '60%'},
+        id = 'yearly-avg-min-trend',  
+        figure = {
+            'data': [
+                {
+                    'x' : df5.index, 
+                    'y' : df5['TMIN'],
+                    'mode' : 'lines + markers',
+
+                },
+                {
+                    'x' : df5.index,
+                    'y' : annual_min_fit(), 
+                }
+            ],
+            'layout': go.Layout(
+                title = 'Denver Yearly Avg Min Temp With Linear Trendline, 1948-Present',
+                xaxis = {'title': 'Date'},
+                yaxis = {'title': 'Temp'},
+                hovermode = 'closest',
+                height = 1000     
+            ), 
+        }
+    ),
+
+    html.Div([
+    dcc.Graph(
+        style = {'width' : '48%'},
         id = 'all-max-temps',
         figure = {
             'data': [go.Scatter(
@@ -162,67 +230,6 @@ app.layout = html.Div([
         }
     ),
     ]),
-
-    html.Div([
-    dcc.Graph(
-        id = 'yearly-avg-max',
-        figure = {
-            'data': [go.Scatter(
-                x = df5.index,
-                y = df5['TMAX'],
-                mode = 'lines + markers'
-            )],
-            'layout': go.Layout(
-                title = 'Denver Yearly Avg Max Temp, 1948-Present',
-                xaxis = {'title': 'Date'},
-                yaxis = {'title': 'Temp'},
-                hovermode = 'closest',
-                height = 1000
-            ),
-        }
-    ),
-
-    dcc.Graph(
-        id = 'yearly-avg-min-trend',  
-        figure = {
-            'data': [
-                {
-                    'x' : df5.index, 
-                    'y' : df5['TMIN'],
-                    'mode' : 'lines + markers'
-                },
-                {
-                    'x' : df5.index,
-                    'y' : annual_min_fit(),
-                }
-            ],
-            'layout': go.Layout(
-              title = 'Denver Yearly Avg Min Temp With Linear Trendline, 1948-Present',
-                xaxis = {'title': 'Date'},
-                yaxis = {'title': 'Temp'},
-                hovermode = 'closest',
-                height = 1000     
-            ), 
-        }
-    ),
-
-    # dcc.Graph(
-    #     id = 'yearly-avg-min',
-    #     figure = {
-    #         'data': [go.Scatter(
-    #             x = df5.index,
-    #             y = df5['TMIN'],
-    #             mode = 'lines + markers'
-    #         )],
-    #         'layout': go.Layout(
-    #             title = 'Denver Yearly Avg Min Temp, 1948-Present',
-    #             xaxis = {'title': 'Date'},
-    #             yaxis = {'title': 'Temp'},
-    #             hovermode = 'closest',
-    #             height = 1000
-    #         ),
-    #     }
-    # ),
     ]),
 ])
 
