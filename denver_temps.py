@@ -9,6 +9,8 @@ import time
 # import datetime
 from datetime import datetime
 from pandas import Series
+from scipy import stats 
+from numpy import arange,array,ones 
 
 cnx = sqlite3.connect('denvertemps.db')
 
@@ -24,9 +26,15 @@ df_ya_max = df.resample('Y').mean()
 # removes final year in df
 df5 = df_ya_max[:-1]
 
+
 # filters all MAXT data for 365 moving average
 allmax_rolling = df['TMAX'].rolling(window=365)
 allmax_rolling_mean = allmax_rolling.mean()
+
+# linear fit for Avg Max Temps
+xi = arange(0,71)
+slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
+line = slope*xi+intercept
 
 
 years = []
@@ -170,23 +178,49 @@ app.layout = html.Div([
             ),
         }
     ),
+
     dcc.Graph(
-        id = 'yearly-avg-min',
+        id = 'yearly-avg-min-trend',  
         figure = {
-            'data': [go.Scatter(
-                x = df5.index,
-                y = df5['TMIN'],
-                mode = 'lines + markers'
-            )],
+            'data': [
+                {
+                    'x' : df5.index, 
+                    'y' : df5['TMIN'],
+                    'mode' : 'lines + markers'
+                },
+                {
+                    'x' : df5.index,
+                    'y' : line,
+                    'mode' : 'lines + markers'
+                }
+            ],
             'layout': go.Layout(
-                title = 'Denver Yearly Avg Min Temp, 1948-Present',
+              title = 'Denver Yearly Avg Min Temp With Linear Trendline, 1948-Present',
                 xaxis = {'title': 'Date'},
                 yaxis = {'title': 'Temp'},
                 hovermode = 'closest',
-                height = 1000
-            ),
+                height = 1000     
+            ), 
         }
     ),
+
+    # dcc.Graph(
+    #     id = 'yearly-avg-min',
+    #     figure = {
+    #         'data': [go.Scatter(
+    #             x = df5.index,
+    #             y = df5['TMIN'],
+    #             mode = 'lines + markers'
+    #         )],
+    #         'layout': go.Layout(
+    #             title = 'Denver Yearly Avg Min Temp, 1948-Present',
+    #             xaxis = {'title': 'Date'},
+    #             yaxis = {'title': 'Temp'},
+    #             hovermode = 'closest',
+    #             height = 1000
+    #         ),
+    #     }
+    # ),
     ]),
 ])
 
@@ -371,6 +405,8 @@ def update_graph_a(selected_year1,selected_year2):
         )
     return fig
 
+
+# Histogram of minimum daily temps for two selected years
 @app.callback(Output('combined-histogram-min','figure'),
               [Input('year-picker1', 'value'),
               Input('year-picker2', 'value')])
