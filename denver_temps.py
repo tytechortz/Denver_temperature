@@ -32,9 +32,12 @@ allmax_rolling = df['TMAX'].rolling(window=365)
 allmax_rolling_mean = allmax_rolling.mean()
 
 # linear fit for Avg Max Temps
-xi = arange(0,71)
-slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
-line = slope*xi+intercept
+def annual_min_fit():
+    xi = arange(0,71)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
+    return (slope*xi+intercept)
+
+
 
 
 years = []
@@ -190,8 +193,7 @@ app.layout = html.Div([
                 },
                 {
                     'x' : df5.index,
-                    'y' : line,
-                    'mode' : 'lines + markers'
+                    'y' : annual_min_fit(),
                 }
             ],
             'layout': go.Layout(
