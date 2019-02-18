@@ -1,6 +1,10 @@
-/* /* body {
+body {
     font-family: sans-serif;
-    background-color: silver
+    background-color: aliceblue
+}
+
+.divider {
+    background-color: black
 }
 
 /* Div {

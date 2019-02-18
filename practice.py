@@ -87,7 +87,7 @@ app.layout = html.Div([
         [
             dbc.Col(
                 html.Div([
-                    html.H3('Denver Max Daily Temp', style={'text-align': 'center', 'color': 'blue'}),
+                    html.H3('Max Daily Temp', style={'text-align': 'center', 'color': 'blue'}),
                 ])
             )
         ]
@@ -128,7 +128,7 @@ app.layout = html.Div([
                 ),
                 width = {'size': 2, 'offset': 2}),
             dbc.Col(
-                html.H2(id='stats-for-year2',style={'color': 'orange', 'font-size':40, 'text-align': 'center'},
+                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'font-size':40, 'text-align': 'center'},
                 ),
                 width = {'size': 2, 'offset': 4}),
         ],
@@ -145,7 +145,7 @@ app.layout = html.Div([
                 ),
                 width = {'size': 2}),
             dbc.Col(
-                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'orange'}
+                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange'}
                 ),
                 width = {'size': 2}),
             dbc.Col(
@@ -165,7 +165,7 @@ app.layout = html.Div([
                 ),
                 width = {'size': 2}),
             dbc.Col(
-                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'orange'},
+                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'darkorange'},
                 ),
                 width = {'size': 2}),
             dbc.Col(
@@ -194,6 +194,99 @@ app.layout = html.Div([
                 width = {'offset': 1}),
         ]
     ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div([
+                    dcc.Graph(id='combined-histogram-max', style={'height':700, 'width':1000, 'display':'inline-block'}),
+                ]),
+                width = {'size' :5 , 'offset': 1},
+            ),
+            dbc.Col(
+                html.Div([
+                    dcc.Graph(id='combined-histogram-min', style={'height':700, 'width':1000, 'display':'inline-block'}),
+                ]),
+                width = {'size': 5},
+            )
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H1('DENVER MAX TEMPS, 1948-PRESENT', style={'text-align':'center'})
+            ),
+            dbc.Col(
+                html.H1('DENVER MIN TEMPS, 1948-PRESENT', style={'text-align':'center'})
+            ),
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div([
+                    dcc.Graph(id='yearly-avg-max-trend', style={'height':700, 'width':1000, 'display':'inline-block'}   ,
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df5.index, 
+                                    'y' : df5['TMAX'],
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : annual_max_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 1000     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size': 5, 'offset':1},
+            ),
+            dbc.Col(
+                html.Div([
+                    dcc.Graph(id='yearly-avg-min-trend', style={'height':700, 'width':1000, 'display':'inline-block'}   ,
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df5.index, 
+                                    'y' : df5['TMIN'],
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Min Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : annual_min_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 1000     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size':5},
+            ),
+        ]
+    ),
+    dbc.Row(
+        dbc.Col(
+            html.Div(id='divider', style={'height':200, 'background-color':'silver'})    
+                ),
+    ),    
 ])
 
 @app.callback(Output('graph', 'figure'),
@@ -344,6 +437,76 @@ def update_layout_l(selected_year2):
     df_max = filtered_df1.resample('D').min()
     days_low_below_zero = (df_max[df_max['TMIN'] < 0].count()['TMIN'])
     return 'Days Low Below 0 : {:.0f}'.format(days_low_below_zero)
+
+@app.callback(Output('combined-histogram-max','figure'),
+              [Input('year-picker1', 'value'),
+              Input('year-picker2', 'value')])
+
+def update_graph_a(selected_year1,selected_year2):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    filtered_df2 = df[df.index.year == selected_year2]
+    filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
+    filtered_df2 = filtered_df2.set_index('datetime')
+    
+    trace1 = go.Histogram(
+        x=filtered_df1['TMAX'],
+        opacity=.5,
+        xbins=dict(size=10),
+        name = selected_year1
+    )
+
+    trace2 = go.Histogram(
+        x=filtered_df2['TMAX'],
+        opacity=.5,
+        xbins=dict(size=10),
+        name = selected_year2
+    )
+
+    data = [trace1, trace2]
+
+    fig = go.Figure(
+        data = data,
+        layout = go.Layout(barmode='overlay')
+        )
+    return fig
+
+
+# Histogram of minimum daily temps for two selected years
+@app.callback(Output('combined-histogram-min','figure'),
+              [Input('year-picker1', 'value'),
+              Input('year-picker2', 'value')])
+
+def update_graph_b(selected_year1,selected_year2):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    filtered_df2 = df[df.index.year == selected_year2]
+    filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
+    filtered_df2 = filtered_df2.set_index('datetime')
+    
+    trace1 = go.Histogram(
+        x = filtered_df1['TMIN'],
+        opacity = .5,
+        xbins = dict(size = 10),
+        name = selected_year1
+    )
+
+    trace2 = go.Histogram(
+        x = filtered_df2['TMIN'],
+        opacity = .5,
+        xbins = dict(size=10),
+        name = selected_year2
+    )
+
+    data = [trace1, trace2]
+
+    fig = go.Figure(
+        data = data,
+        layout = go.Layout(barmode='overlay')
+        )
+    return fig
 
 if __name__ == "__main__":
     app.run_server(port=8124, debug=True)
