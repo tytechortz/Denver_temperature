@@ -98,18 +98,100 @@ app.layout = html.Div([
                 html.Div([
                     dcc.Graph(id='graph', style={'height':700, 'width':1200, 'display':'inline-block'}),
                 ]),
-                width = {'size': 8, 'offset': 2},
+                width = {'size': 8, 'offset': 3},
             )
         ]
     ),
     dbc.Row(
         [
             dbc.Col(
-                dcc.Dropdown(id='year-picker1', options=years),
-            ),
+                html.H2('SELECT YEARS', style={'text-align':'center'})
+            )
+        ]
+    ),
+    dbc.Row(
+        [
             dbc.Col(
-                dcc.Dropdown(id='year-picker2', options=years),
-            ),
+                dcc.Dropdown(id='year-picker1', options=years
+                ),
+                width = {'size': 2, 'offset': 2}),
+            dbc.Col(
+                dcc.Dropdown(id='year-picker2', options=years
+                ),
+                width = {'size': 2, 'offset': 4}),    
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H2(id='stats-for-year1',style={'color': 'blue', 'font-size':40, 'text-align': 'center'},
+                ),
+                width = {'size': 2, 'offset': 2}),
+            dbc.Col(
+                html.H2(id='stats-for-year2',style={'color': 'orange', 'font-size':40, 'text-align': 'center'},
+                ),
+                width = {'size': 2, 'offset': 4}),
+        ],
+        align = 'end'
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H2(id='Maximum-yearly-temp-1', style={'font-size':25, 'color': 'blue'},
+                ),
+                width = {'offset': 1, 'size': 3}),
+            dbc.Col(
+                html.H2(id='Minimum-yearly-temp-1', style={'font-size':25, 'color': 'blue'}
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'orange'}
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='Minimum-yearly-temp-2', style={'font-size':25, 'color': 'orange'}
+                ),
+                width = {'offset': 1}),
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H2(id='90-degree-days-1', style={'font-size':25, 'color': 'blue'},
+                ),
+                width = {'offset': 1, 'size': 3}),
+            dbc.Col(
+                html.H2(id='High-below-freezing-1', style={'font-size':25, 'color': 'blue'},
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'orange'},
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='High-below-freezing-2', style={'font-size':25, 'color': 'orange'}
+                ),
+                width = {'offset': 1}),
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H2(id='80-degree-days-1', style={'font-size':25, 'color': 'blue'},
+                ),
+                width = {'offset': 1, 'size': 3}),
+            dbc.Col(
+                html.H2(id='Low-below-zero-1', style={'font-size':25, 'color': 'blue'},
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='80-degree-days-2', style={'font-size':25, 'color': 'orange'},
+                ),
+                width = {'size': 2}),
+            dbc.Col(
+                html.H2(id='Low-below-zero-2', style={'font-size':25, 'color': 'orange'}
+                ),
+                width = {'offset': 1}),
         ]
     ),
 ])
@@ -152,7 +234,116 @@ def update_layout_i(selected_year1):
 @app.callback(Output('stats-for-year2', 'children'),
               [Input('year-picker2', 'value')])
 def update_layout_j(selected_year2):
-    return 'Stats for {}'.format(selected_year2) 
+    return 'Stats for {}'.format(selected_year2)
+
+@app.callback(Output('Maximum-yearly-temp-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_a(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    annual_max_temp1 = filtered_df1['TMAX'].max()
+    return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp1)
+
+@app.callback(Output('Minimum-yearly-temp-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_b(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    annual_min_temp1 = filtered_df1['TMIN'].min()
+    return 'Minimum Yearly Temp: {:.0f}'.format(annual_min_temp1)
+
+@app.callback(Output('Maximum-yearly-temp-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_c(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    annual_max_temp2 = filtered_df1['TMAX'].max()
+    return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp2)
+
+@app.callback(Output('Minimum-yearly-temp-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_d(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    annual_min_temp2 = filtered_df1['TMIN'].min()
+    return 'Minimum Yearly Temp: {:.0f}'.format(annual_min_temp2)
+
+@app.callback(Output('90-degree-days-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_e(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
+    return 'Total Days Above 90 : {}'.format(days_over_90)
+
+@app.callback(Output('High-below-freezing-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_f(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_high_below_zero = (df_max[df_max['TMAX'] < 32].count()['TMAX'])
+    return 'Days High Below Freezing : {:.0f}'.format(days_high_below_zero)
+
+@app.callback(Output('90-degree-days-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_g(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
+    return 'Total Days Above 90 : {}'.format(days_over_90)
+
+@app.callback(Output('High-below-freezing-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_h(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_high_below_zero = (df_max[df_max['TMAX'] < 32].count()['TMAX'])
+    return 'Days High Below Freezing : {:.0f}'.format(days_high_below_zero)
+
+@app.callback(Output('80-degree-days-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_m(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
+    return 'Total Days Above 80 : {}'.format(days_over_80)
+
+@app.callback(Output('Low-below-zero-1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_n(selected_year1):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').min()
+    days_low_below_zero = (df_max[df_max['TMIN'] < 0].count()['TMIN'])
+    return 'Days Low Below 0 : {:.0f}'.format(days_low_below_zero)
+
+
+@app.callback(Output('80-degree-days-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_k(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').max()
+    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
+    return 'Total Days Above 80 : {}'.format(days_over_80)
+
+@app.callback(Output('Low-below-zero-2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_l(selected_year2):
+    filtered_df1 = df[df.index.year == selected_year2]
+    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
+    filtered_df1 = filtered_df1.set_index('datetime')
+    df_max = filtered_df1.resample('D').min()
+    days_low_below_zero = (df_max[df_max['TMIN'] < 0].count()['TMIN'])
+    return 'Days Low Below 0 : {:.0f}'.format(days_low_below_zero)
 
 if __name__ == "__main__":
     app.run_server(port=8124, debug=True)
