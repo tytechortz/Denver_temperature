@@ -44,6 +44,10 @@ year_count = presentyr-startyr
 
 xi = arange(0,year_count-1)
 
+years = []
+for YEAR in df.index.year.unique():
+    years.append({'label':(YEAR), 'value':YEAR})
+
 # linear fit for Avg Max Temps
 def annual_min_fit():
     xi = arange(0,year_count)
@@ -98,8 +102,57 @@ app.layout = html.Div([
             )
         ]
     ),
+    dbc.Row(
+        [
+            dbc.Col(
+                dcc.Dropdown(id='year-picker1', options=years),
+            ),
+            dbc.Col(
+                dcc.Dropdown(id='year-picker2', options=years),
+            ),
+        ]
+    ),
 ])
-    
+
+@app.callback(Output('graph', 'figure'),
+              [Input('year-picker1', 'value'),
+               Input('year-picker2', 'value')])
+def update_figure(selected_year1, selected_year2):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df2 = df[df.index.year == selected_year2]
+    traces = []
+    max_rolling = filtered_df1['TMAX'].rolling(window=3)
+    min_rolling = filtered_df2['TMAX'].rolling(window=3)
+    rolling_max = max_rolling.mean()
+    rolling_min = min_rolling.mean()
+
+    traces.append(go.Scatter(
+        y = rolling_max,
+        name = selected_year1
+    ))
+    traces.append(go.Scatter(
+        y = rolling_min,
+        name = selected_year2
+    ))
+
+    return {
+        'data': traces,
+        'layout': go.Layout(
+            xaxis = {'title': 'YEAR'},
+            yaxis = {'title': 'TMAX'},
+            hovermode = 'closest'
+        )
+    } 
+
+@app.callback(Output('stats-for-year1', 'children'),
+              [Input('year-picker1', 'value')])
+def update_layout_i(selected_year1):
+    return 'Stats for {}'.format(selected_year1)
+
+@app.callback(Output('stats-for-year2', 'children'),
+              [Input('year-picker2', 'value')])
+def update_layout_j(selected_year2):
+    return 'Stats for {}'.format(selected_year2) 
 
 if __name__ == "__main__":
     app.run_server(port=8124, debug=True)
