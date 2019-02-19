@@ -86,19 +86,35 @@ app.layout = html.Div([
     dbc.Row(
         [
             dbc.Col(
-                html.Div([
-                    html.H3('Max Daily Temp', style={'text-align': 'center', 'color': 'blue'}),
-                ])
-            )
-        ]
+                html.Div(
+                    html.H3('MAX DAILY TEMP'),
+                style={'width':1000, 'text-align':'center'}
+                ),
+                width = {'size':5,'offset':1},
+            ),
+            dbc.Col(
+                html.Div(
+                    html.H3('MIN DAILY TEMP'),
+                style={'width':1000, 'text-align':'center'}
+                ),
+                width = {'size':5}, 
+            ),
+        ],
+         align='center',
     ),
     dbc.Row(
         [
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='graph', style={'height':700, 'width':1200, 'display':'inline-block'}),
+                    dcc.Graph(id='graph1', style={'height':700, 'width':'1000', 'display':'inline-block'}),
                 ]),
-                width = {'size': 8, 'offset': 3},
+                width = {'size': 5, 'offset': 1},
+            ),
+            dbc.Col(
+                html.Div([
+                    dcc.Graph(id='graph2', style={'height':700, 'width':'1000', 'display':'inline-block'}),
+                ]),
+                width = {'size': 5},
             )
         ]
     ),
@@ -114,23 +130,23 @@ app.layout = html.Div([
             dbc.Col(
                 dcc.Dropdown(id='year-picker1', options=years
                 ),
-                width = {'size': 2, 'offset': 2}),
+                width = {'size': 3, 'offset': 2}),
             dbc.Col(
                 dcc.Dropdown(id='year-picker2', options=years
                 ),
-                width = {'size': 2, 'offset': 4}),    
+                width = {'size': 3, 'offset': 2}),    
         ]
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H2(id='stats-for-year1',style={'color': 'blue', 'font-size':40, 'text-align': 'center'},
+                html.H2(id='stats-for-year1',style={'color': 'blue', 'text-align': 'center'},
                 ),
-                width = {'size': 2, 'offset': 2}),
+                width = {'size': 5, 'offset': 1}),
             dbc.Col(
-                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'font-size':40, 'text-align': 'center'},
+                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'text-align': 'center'},
                 ),
-                width = {'size': 2, 'offset': 4}),
+                width = {'size': 5}),
         ],
         align = 'end'
     ),
@@ -200,7 +216,7 @@ app.layout = html.Div([
                 html.Div([
                     dcc.Graph(id='combined-histogram-max', style={'height':700, 'width':1000, 'display':'inline-block'}),
                 ]),
-                width = {'size' :5 , 'offset': 1},
+                width = {'size':5 ,'offset':1},
             ),
             dbc.Col(
                 html.Div([
@@ -213,13 +229,35 @@ app.layout = html.Div([
     dbc.Row(
         [
             dbc.Col(
-                html.H1('DENVER MAX TEMPS, 1948-PRESENT', style={'text-align':'center'})
-            ),
+                html.H3(id='stats-for-year1-1',style={'text-align': 'center'},
+                ),
+                width = {'size': 5, 'offset': 1}),
             dbc.Col(
-                html.H1('DENVER MIN TEMPS, 1948-PRESENT', style={'text-align':'center'})
-            ),
-        ]
+                html.H3(id='stats-for-year2-2',style={'text-align': 'center'},
+                ),
+                width = {'size': 5}),
+        ],
+        align = 'end'
     ),
+    # dbc.Row(
+    #     [
+    #         dbc.Col(
+    #             html.Div(
+    #                 html.H3('DENVER MAX TEMPS'),
+    #             style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+    #             ),
+    #             width = {'size':5,'offset':1},
+    #         ),
+    #         dbc.Col(
+    #             html.Div(
+    #                 html.H3('DENVER MIN TEMPS, 1948-PRESENT'),
+    #             style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+    #             ),
+    #             width = {'size':5}, 
+    #         ),
+    #     ],
+    #      align='center',
+    # ),
     dbc.Row(
         [
             dbc.Col(
@@ -283,13 +321,32 @@ app.layout = html.Div([
         ]
     ),
     dbc.Row(
+        [
+            dbc.Col(
+                html.Div(
+                    html.H3('DENVER MAX TEMPS, 1948-PRESENT'),
+                style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+                ),
+                width = {'size':5,'offset':1},
+            ),
+            dbc.Col(
+                html.Div(
+                    html.H3('DENVER MIN TEMPS, 1948-PRESENT'),
+                style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+                ),
+                width = {'size':5}, 
+            ),
+        ],
+         align='center',
+    ),
+    dbc.Row(
         dbc.Col(
             html.Div(id='divider', style={'height':200, 'background-color':'silver'})    
                 ),
     ),    
 ])
 
-@app.callback(Output('graph', 'figure'),
+@app.callback(Output('graph1', 'figure'),
               [Input('year-picker1', 'value'),
                Input('year-picker2', 'value')])
 def update_figure(selected_year1, selected_year2):
@@ -298,6 +355,36 @@ def update_figure(selected_year1, selected_year2):
     traces = []
     max_rolling = filtered_df1['TMAX'].rolling(window=3)
     min_rolling = filtered_df2['TMAX'].rolling(window=3)
+    rolling_max = max_rolling.mean()
+    rolling_min = min_rolling.mean()
+
+    traces.append(go.Scatter(
+        y = rolling_max,
+        name = selected_year1
+    ))
+    traces.append(go.Scatter(
+        y = rolling_min,
+        name = selected_year2
+    ))
+
+    return {
+        'data': traces,
+        'layout': go.Layout(
+            xaxis = {'title': 'YEAR'},
+            yaxis = {'title': 'TMAX'},
+            hovermode = 'closest'
+        )
+    }
+
+@app.callback(Output('graph2', 'figure'),
+              [Input('year-picker1', 'value'),
+               Input('year-picker2', 'value')])
+def update_figure(selected_year1, selected_year2):
+    filtered_df1 = df[df.index.year == selected_year1]
+    filtered_df2 = df[df.index.year == selected_year2]
+    traces = []
+    max_rolling = filtered_df1['TMIN'].rolling(window=3)
+    min_rolling = filtered_df2['TMIN'].rolling(window=3)
     rolling_max = max_rolling.mean()
     rolling_min = min_rolling.mean()
 
@@ -507,6 +594,18 @@ def update_graph_b(selected_year1,selected_year2):
         layout = go.Layout(barmode='overlay')
         )
     return fig
+
+@app.callback(Output('stats-for-year1-1', 'children'),
+              [Input('year-picker1', 'value'),
+              Input('year-picker2', 'value')])
+def update_layout_o(selected_year1, selected_year2):
+    return 'Max Temps: {} and {}'.format(selected_year1,selected_year2)
+
+@app.callback(Output('stats-for-year2-2', 'children'),
+              [Input('year-picker2', 'value'),
+              Input('year-picker1', 'value')])
+def update_layout_p(selected_year2, selected_year1):
+    return 'Min Temps: {} and {}'.format(selected_year1,selected_year2)
 
 if __name__ == "__main__":
     app.run_server(port=8124, debug=True)
