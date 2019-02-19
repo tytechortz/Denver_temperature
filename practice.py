@@ -84,9 +84,10 @@ app.layout = html.Div([
     dbc.Row(
         [
             dbc.Col(
-                html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center'})
+                html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':50,'font-color':'Gray'})
             )
-        ]
+        ],
+        justify='center'
     ),
     dbc.Row(
         [
@@ -100,35 +101,34 @@ app.layout = html.Div([
             dbc.Col(
                 html.Div(
                     html.H3('MAX DAILY TEMP'),
-                style={'width':1000, 'text-align':'center'}
+                style={'text-align':'center'}
                 ),
-                width = {'size':5,'offset':1},
             ),
             dbc.Col(
                 html.Div(
                     html.H3('MIN DAILY TEMP'),
-                style={'width':1000, 'text-align':'center'}
-                ),
-                width = {'size':5}, 
+                style={'text-align':'center'}
+                ), 
             ),
         ],
-         align='center',
+         justify='around',
     ),
     dbc.Row(
         [
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='graph1', style={'height':700, 'width':'1000', 'display':'inline-block'}),
+                    dcc.Graph(id='graph1', style={'height': 700}),
                 ]),
-                width = {'size': 5, 'offset': 1},
+                width = {'size': 5},
             ),
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='graph2', style={'height':700, 'width':'1000', 'display':'inline-block'}),
+                    dcc.Graph(id='graph2', style={'height': 700}),
                 ]),
                 width = {'size': 5},
             )
-        ]
+        ],
+        justify='around',
     ),
     dbc.Row(
         [
@@ -142,139 +142,106 @@ app.layout = html.Div([
             dbc.Col(
                 dcc.Dropdown(id='year-picker1', options=years
                 ),
-                width = {'size': 3, 'offset': 2}),
+                width = {'size': 2}),
             dbc.Col(
                 dcc.Dropdown(id='year-picker2', options=years
                 ),
-                width = {'size': 3, 'offset': 2}),    
-        ]
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2(id='stats-for-year1',style={'color': 'blue', 'text-align': 'center'},
-                ),
-                width = {'size': 5, 'offset': 1}),
-            dbc.Col(
-                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'text-align': 'center'},
-                ),
-                width = {'size': 5}),
+                width = {'size': 2}),    
         ],
-        align = 'end'
+        justify='around',
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H2(id='Maximum-yearly-temp-1', style={'font-size':25, 'color': 'blue'},
+                html.H2(id='stats-for-year1',style={'color': 'blue', 'text-align': 'center'}),
                 ),
-                width = {'offset': 1, 'size': 3}),
             dbc.Col(
-                html.H2(id='Minimum-yearly-temp-1', style={'font-size':25, 'color': 'blue'}
-                ),
-                width = {'size': 2}),
-            dbc.Col(
-                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange'}
-                ),
-                width = {'size': 2}),
-            dbc.Col(
-                html.H2(id='Minimum-yearly-temp-2', style={'font-size':25, 'color': 'orange'}
-                ),
-                width = {'offset': 1}),
-        ]
+                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'text-align': 'center'}),
+                ),       
+        ],
+        justify='around'
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H2(id='90-degree-days-1', style={'font-size':25, 'color': 'blue'},
-                ),
-                width = {'offset': 1, 'size': 3}),
+                html.H2(id='Maximum-yearly-temp-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),     
             dbc.Col(
-                html.H2(id='High-below-freezing-1', style={'font-size':25, 'color': 'blue'},
-                ),
-                width = {'size': 2}),
+                html.H2(id='Minimum-yearly-temp-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),
             dbc.Col(
-                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'darkorange'},
-                ),
-                width = {'size': 2}),
+                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),
             dbc.Col(
-                html.H2(id='High-below-freezing-2', style={'font-size':25, 'color': 'orange'}
-                ),
-                width = {'offset': 1}),
-        ]
+                html.H2(id='Minimum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),  
+        ],
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H2(id='80-degree-days-1', style={'font-size':25, 'color': 'blue'},
-                ),
-                width = {'offset': 1, 'size': 3}),
+                html.H2(id='90-degree-days-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),
             dbc.Col(
-                html.H2(id='Low-below-zero-1', style={'font-size':25, 'color': 'blue'},
-                ),
-                width = {'size': 2}),
+                html.H2(id='High-below-freezing-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),
             dbc.Col(
-                html.H2(id='80-degree-days-2', style={'font-size':25, 'color': 'orange'},
-                ),
-                width = {'size': 2}),
+                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),
             dbc.Col(
-                html.H2(id='Low-below-zero-2', style={'font-size':25, 'color': 'orange'}
-                ),
-                width = {'offset': 1}),
-        ]
+                html.H2(id='High-below-freezing-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),
+        ],
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H2(id='80-degree-days-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),
+            dbc.Col(
+                html.H2(id='Low-below-zero-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
+                width=6, lg=3),
+            dbc.Col(
+                html.H2(id='80-degree-days-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),
+            dbc.Col(
+                html.H2(id='Low-below-zero-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
+                width=6, lg=3),
+        ],
     ),
     dbc.Row(
         [
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='combined-histogram-max', style={'height':700, 'width':1000, 'display':'inline-block'}),
+                    dcc.Graph(id='combined-histogram-max', style={'height':700}),
                 ]),
-                width = {'size':5 ,'offset':1},
+                width = {'size':4},
             ),
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='combined-histogram-min', style={'height':700, 'width':1000, 'display':'inline-block'}),
+                    dcc.Graph(id='combined-histogram-min', style={'height':700}),
                 ]),
-                width = {'size': 5},
+                width = {'size': 4},
             )
-        ]
+        ],
+        justify='around'
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H3(id='stats-for-year1-1',style={'text-align': 'center'},
+                html.H3(id='stats-for-year1-1',style={'height':100, 'text-align': 'center'}),
                 ),
-                width = {'size': 5, 'offset': 1}),
             dbc.Col(
-                html.H3(id='stats-for-year2-2',style={'text-align': 'center'},
+                html.H3(id='stats-for-year2-2',style={'height':100, 'text-align': 'center'}),
                 ),
-                width = {'size': 5}),
         ],
-        align = 'end'
+        align = 'around'
     ),
-    # dbc.Row(
-    #     [
-    #         dbc.Col(
-    #             html.Div(
-    #                 html.H3('DENVER MAX TEMPS'),
-    #             style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
-    #             ),
-    #             width = {'size':5,'offset':1},
-    #         ),
-    #         dbc.Col(
-    #             html.Div(
-    #                 html.H3('DENVER MIN TEMPS, 1948-PRESENT'),
-    #             style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
-    #             ),
-    #             width = {'size':5}, 
-    #         ),
-    #     ],
-    #      align='center',
-    # ),
     dbc.Row(
         [
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='yearly-avg-max-trend', style={'height':700, 'width':1000, 'display':'inline-block'}   ,
+                    dcc.Graph(id='yearly-avg-max-trend', style={'height':700},
                         figure = {
                             'data': [
                                 {
@@ -292,18 +259,17 @@ app.layout = html.Div([
                             'layout': go.Layout(
                                 xaxis = {'title': 'Date'},
                                 yaxis = {'title': 'Temp'},
-                                hovermode = 'closest',
-                                height = 1000     
+                                hovermode = 'closest',    
                             ), 
                         }
                     ),
 
                 ]),
-                width = {'size': 5, 'offset':1},
+                width = {'size': 4},
             ),
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='yearly-avg-min-trend', style={'height':700, 'width':1000, 'display':'inline-block'}   ,
+                    dcc.Graph(id='yearly-avg-min-trend', style={'height':700},
                         figure = {
                             'data': [
                                 {
@@ -321,35 +287,35 @@ app.layout = html.Div([
                             'layout': go.Layout(
                                 xaxis = {'title': 'Date'},
                                 yaxis = {'title': 'Temp'},
-                                hovermode = 'closest',
-                                height = 1000     
+                                hovermode = 'closest',      
                             ), 
                         }
                     ),
 
                 ]),
-                width = {'size':5},
+                width = {'size':4},
             ),
-        ]
+        ],
+        justify='around'
     ),
     dbc.Row(
         [
             dbc.Col(
                 html.Div(
                     html.H3('DENVER MAX TEMPS, 1948-PRESENT'),
-                style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+                style={'height':100, 'background-color':'lightsilver', 'text-align': 'center'}
                 ),
-                width = {'size':5,'offset':1},
+                width = {'size':5},
             ),
             dbc.Col(
                 html.Div(
                     html.H3('DENVER MIN TEMPS, 1948-PRESENT'),
-                style={'height':100, 'background-color':'lightsilver', 'width':1000, 'text-align': 'center'}
+                style={'height':100, 'background-color':'lightsilver', 'text-align': 'center'}
                 ),
                 width = {'size':5}, 
             ),
         ],
-         align='center',
+         justify='around',
     ),
     dbc.Row(
         [
@@ -380,9 +346,17 @@ app.layout = html.Div([
                     ),
 
                 ]),
-                width = {'size': 10, 'offset':1},
+                width = {'size': 8, 'offset':2},
             ), 
-        ]
+        ],
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H3('Max Temps 1948-Present, 5 Year Moving Avg', style={'height':100, 'text-align': 'center'}),
+                ),
+        ],
+        align = 'around'
     ),
     dbc.Row(
         [
@@ -413,9 +387,17 @@ app.layout = html.Div([
                     ),
 
                 ]),
-                width = {'size': 10, 'offset':1},
+                width = {'size': 8, 'offset':2},
             ), 
         ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H3('Min Temps 1948-Present, 5 Year Moving Avg', style={'height':100, 'text-align': 'center'}),
+                ),
+        ],
+        align = 'around'
     ),
     dbc.Row(
         dbc.Col(
