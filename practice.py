@@ -33,9 +33,16 @@ df_ya_max = df.resample('Y').mean()
 df5 = df_ya_max[:-1]
 
 
-# filters all MAXT data for 365 moving average
-allmax_rolling = df['TMAX'].rolling(window=365)
+
+
+# filters all MAXT data for 5 year moving average
+allmax_rolling = df['TMAX'].rolling(window=1825)
 allmax_rolling_mean = allmax_rolling.mean()
+
+# filters all MINT data fr 5 year moving average
+allmin_rolling = df['TMIN'].rolling(window=1825)
+allmin_rolling_mean = allmin_rolling.mean()
+
 
 startyr = 1948
 presentyr = datetime.now().year
@@ -55,13 +62,18 @@ def annual_min_fit():
     return (slope*xi+intercept)
 
 def annual_max_fit():
-    xi = arange(0,71)
+    xi = arange(0,year_count)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
     return (slope*xi+intercept)
 
-def all_temp_fit():
-    xi = arange(0,71)
+def all_max_temp_fit():
+    xi = arange(0,year_count)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
+
+def all_min_temp_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
     return (slope*xi+intercept)
 
 years = []
@@ -338,6 +350,72 @@ app.layout = html.Div([
             ),
         ],
          align='center',
+    ),
+    dbc.Row(
+        [
+           dbc.Col(
+                html.Div([
+                    dcc.Graph(id='all-max-temps',  
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df.index, 
+                                    'y' : allmax_rolling_mean,
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : all_max_temp_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 1000     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size': 10, 'offset':1},
+            ), 
+        ]
+    ),
+    dbc.Row(
+        [
+           dbc.Col(
+                html.Div([
+                    dcc.Graph(id='all-min-temps',  
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df.index, 
+                                    'y' : allmin_rolling_mean,
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : all_min_temp_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 1000     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size': 10, 'offset':1},
+            ), 
+        ]
     ),
     dbc.Row(
         dbc.Col(
