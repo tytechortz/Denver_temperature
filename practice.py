@@ -80,7 +80,7 @@ years = []
 for YEAR in df.index.year.unique():
     years.append({'label':(YEAR), 'value':YEAR})
 
-app.layout = html.Div([
+body = dbc.Container([
     dbc.Row(
         [
             dbc.Col(
@@ -117,16 +117,16 @@ app.layout = html.Div([
         [
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='graph1', style={'height': 700}),
+                    dcc.Graph(id='graph1', style={'height':700}),
                 ]),
-                width = {'size': 5},
+                width={'size':5}
             ),
             dbc.Col(
                 html.Div([
-                    dcc.Graph(id='graph2', style={'height': 700}),
+                    dcc.Graph(id='graph2', style={'height':700}),
                 ]),
-                width = {'size': 5},
-            )
+                width={'size':5}
+            ),
         ],
         justify='around',
     ),
@@ -404,7 +404,9 @@ app.layout = html.Div([
             html.Div(id='divider', style={'height':200, 'background-color':'silver'})    
                 ),
     ),    
-])
+],
+fluid = 'True'
+)
 
 @app.callback(Output('graph1', 'figure'),
               [Input('year-picker1', 'value'),
@@ -666,6 +668,8 @@ def update_layout_o(selected_year1, selected_year2):
               Input('year-picker1', 'value')])
 def update_layout_p(selected_year2, selected_year1):
     return 'Min Temps: {} and {}'.format(selected_year1,selected_year2)
+
+app.layout = html.Div(body)
 
 if __name__ == "__main__":
     app.run_server(port=8124, debug=True)
