@@ -13,14 +13,14 @@ from pandas import Series
 from scipy import stats
 from scipy.stats import norm 
 from numpy import arange,array,ones 
+from django_plotly_dash import
 
 
 
-
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = DjangoDash('DenverTemps', external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config['suppress_callback_exceptions']=True
 
-# cnx = sqlite3.connect('denvertemps.db')
+cnx = sqlite3.connect('denvertemps.db')
 
 
 
@@ -436,8 +436,7 @@ def update_figure(selected_year1, selected_year2):
         'layout': go.Layout(
             xaxis = {'title': 'YEAR'},
             yaxis = {'title': 'TMAX'},
-            hovermode = 'closest',
-            title = '3 Day Rolling Avg'
+            hovermode = 'closest'
         )
     }
 
@@ -467,8 +466,7 @@ def update_figure_a(selected_year1, selected_year2):
         'layout': go.Layout(
             xaxis = {'title': 'YEAR'},
             yaxis = {'title': 'TMAX'},
-            hovermode = 'closest',
-            title = '3 Day Rolling Avg'
+            hovermode = 'closest'
         )
     } 
 
@@ -675,5 +673,5 @@ def update_layout_p(selected_year2, selected_year1):
 
 app.layout = html.Div(body)
 
-if __name__ == "__main__":
-    app.run_server(port=8124, debug=True)
+# if __name__ == "__main__":
+#     app.run_server(port=8124, debug=True)
