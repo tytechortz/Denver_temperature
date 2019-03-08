@@ -14,6 +14,6 @@ from scipy import stats
 from numpy import arange,array,ones 
 
 
-linefwf = pd.read_fwf('./USW00023062.dly')
+linefwf = pd.read_fwf('./USW00023062.dly', header=None, skiprows = 86 )
 
 print(linefwf)
