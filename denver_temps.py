@@ -22,10 +22,10 @@ app.config['suppress_callback_exceptions']=True
 
 # cnx = sqlite3.connect('denvertemps.db')
 
-
+pd.options.mode.chained_assignment = None  # default='warn'
 
 # df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
-df = pd.read_csv('../../stapleton.csv')
+df = pd.read_csv('../stapleton.csv')
 
 
 df['datetime']= pd.to_datetime(df['DATE'])
@@ -44,6 +44,14 @@ allmax_rolling_mean = allmax_rolling.mean()
 # filters all MINT data fr 5 year moving average
 allmin_rolling = df['TMIN'].rolling(window=1825)
 allmin_rolling_mean = allmin_rolling.mean()
+
+# sorts annual mean temps
+
+annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
+annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
+drl = annual_max_mean_rankings.size
+print(annual_max_mean_rankings)
+
 
 
 startyr = 1948
@@ -319,6 +327,105 @@ body = dbc.Container([
         ],
          justify='around',
     ),
+
+    dbc.Row([
+            dbc.Col(
+                html.Div([
+                    html.H4('Warmest Years-Mean Max ',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':6},
+                style={'height':30, 'text-align':'center'} 
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H4('Warmest Years-Mean Min',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':6},
+                style={'height':30, 'text-align':'center'} 
+            ),
+        ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("1- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-1], annual_max_mean_rankings.index[drl-1].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("1- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-1], annual_min_mean_rankings.index[drl-1].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-2], annual_max_mean_rankings.index[drl-2].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-2], annual_min_mean_rankings.index[drl-2].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-3], annual_max_mean_rankings.index[drl-3].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-3], annual_min_mean_rankings.index[drl-3].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-4], annual_max_mean_rankings.index[drl-4].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-4], annual_min_mean_rankings.index[drl-4].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-5], annual_max_mean_rankings.index[drl-5].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-5], annual_min_mean_rankings.index[drl-5].year)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+
+
     dbc.Row(
         [
            dbc.Col(
@@ -676,4 +783,4 @@ def update_layout_p(selected_year2, selected_year1):
 app.layout = html.Div(body)
 
 if __name__ == "__main__":
-    app.run_server(port=8124, debug=True)
+    app.run_server(port=8050, debug=True)
