@@ -13,7 +13,7 @@ from pandas import Series
 from scipy import stats 
 from numpy import arange,array,ones 
 
+url = 'ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00023062.dly'
+df = pd.read_fwf('./USW00023062.dly', header=None, skiprows = 86 )
+print(df)
 
-linefwf = pd.read_fwf('./USW00023062.dly', header=None, skiprows = 86 )
-
-print(linefwf)
