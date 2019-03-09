@@ -12,7 +12,10 @@ index = pd.date_range(todays_date-datetime.timedelta(period.days), periods=perio
 
 columns = ['TMAX','TMIN']
 
-df1 = pd.DataFrame(index=index, columns=columns)
-df1 = df1.fillna(0) # with 0s rather than NaNs
+df = pd.DataFrame(index=index, columns=columns)
+df = df.fillna(0) # with 0s rather than NaNs
     
+url = 'ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00023062.dly'
+df1 = pd.read_fwf('ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00023062.dly', header=None, skiprows = 86 )
+
 print(df1)
