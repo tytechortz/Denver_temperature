@@ -21,6 +21,13 @@ df1 = pd.read_fwf('ftp://ftp.ncdc.noaa.gov/pub/data/ghcn/daily/all/USW00023062.d
 # filters for max temps
 df_TMAX = df1[df1[0].str.contains("TMAX")]
 
-# filtes for min temps
+# filters for min temps
 df_TMIN = df1[df1[0].str.contains("TMIN")]
-print(df_TMIN)
+
+# filters first column 
+df_TMAX[0] = df_TMAX[0].str[22:27]
+df_TMIN[0] = df_TMIN[0].str[22:27]
+
+df_TMAX.drop(df_TMAX.columns[-1], axis=1,inplace=True)
+df_TMIN.drop(df_TMIN.columns[-1], axis=1,inplace=True)
+
