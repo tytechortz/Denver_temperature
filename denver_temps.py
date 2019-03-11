@@ -521,20 +521,20 @@ fluid = 'True'
               [Input('year-picker1', 'value'),
                Input('year-picker2', 'value')])
 def update_figure(selected_year1, selected_year2):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df2 = df[df.index.year == selected_year2]
+    filtered_year1 = df[df.index.year == selected_year1]
+    filtered_year2 = df[df.index.year == selected_year2]
     traces = []
-    max_rolling = filtered_df1['TMAX'].rolling(window=3)
-    min_rolling = filtered_df2['TMAX'].rolling(window=3)
-    rolling_max = max_rolling.mean()
-    rolling_min = min_rolling.mean()
+    year1_rolling = filtered_year1['TMAX'].rolling(window=3)
+    year2_rolling = filtered_year2['TMAX'].rolling(window=3)
+    rolling_year1 = year1_rolling.mean()
+    rolling_year2 = year2_rolling.mean()
 
     traces.append(go.Scatter(
-        y = rolling_max,
+        y = rolling_year1,
         name = selected_year1
     ))
     traces.append(go.Scatter(
-        y = rolling_min,
+        y = rolling_year2,
         name = selected_year2
     ))
 
