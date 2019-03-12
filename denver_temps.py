@@ -25,7 +25,10 @@ app.config['suppress_callback_exceptions']=True
 pd.options.mode.chained_assignment = None  # default='warn'
 
 # df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
-df = pd.read_csv('../stapleton.csv')
+df = pd.read_csv('./stapleton.csv')
+
+# daily normal temperatures
+df_norms = pd.read_csv('./daily_normal_max.csv')
 
 
 df['datetime']= pd.to_datetime(df['DATE'])
@@ -129,14 +132,14 @@ body = dbc.Container([
                 html.Div([
                     dcc.Graph(id='graph1', style={'height':700}),
                 ]),
-                width={'size':5}
+                width={'size':10}
             ),
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='graph2', style={'height':700}),
-                ]),
-                width={'size':5}
-            ),
+            # dbc.Col(
+            #     html.Div([
+            #         dcc.Graph(id='graph2', style={'height':700}),
+            #     ]),
+            #     width={'size':5}
+            # ),
         ],
         justify='around',
     ),
@@ -518,24 +521,19 @@ fluid = 'True'
 )
 
 @app.callback(Output('graph1', 'figure'),
-              [Input('year-picker1', 'value'),
-               Input('year-picker2', 'value')])
-def update_figure(selected_year1, selected_year2):
+              [Input('year-picker1', 'value')])
+def update_figure(selected_year1):
     filtered_year1 = df[df.index.year == selected_year1]
-    filtered_year2 = df[df.index.year == selected_year2]
     traces = []
-    year1_rolling = filtered_year1['TMAX'].rolling(window=3)
-    year2_rolling = filtered_year2['TMAX'].rolling(window=3)
-    rolling_year1 = year1_rolling.mean()
-    rolling_year2 = year2_rolling.mean()
+    year1_rolling = filtered_year1['TMAX']
 
     traces.append(go.Scatter(
-        y = rolling_year1,
-        name = selected_year1
+        y = year1_rolling,
+        name = 'Daily Max T'
     ))
     traces.append(go.Scatter(
-        y = rolling_year2,
-        name = selected_year2
+        y = df_norms['DLY-TMAX-NORMAL'],
+        name = "Normal Max T"
     ))
 
     return {
@@ -547,6 +545,37 @@ def update_figure(selected_year1, selected_year2):
             title = '3 Day Rolling Avg'
         )
     }
+
+# @app.callback(Output('graph1', 'figure'),
+#               [Input('year-picker1', 'value'),
+#                Input('year-picker2', 'value')])
+# def update_figure(selected_year1, selected_year2):
+#     filtered_year1 = df[df.index.year == selected_year1]
+#     filtered_year2 = df[df.index.year == selected_year2]
+#     traces = []
+#     year1_rolling = filtered_year1['TMAX'].rolling(window=3)
+#     year2_rolling = filtered_year2['TMAX'].rolling(window=3)
+#     rolling_year1 = year1_rolling.mean()
+#     rolling_year2 = year2_rolling.mean()
+
+#     traces.append(go.Scatter(
+#         y = rolling_year1,
+#         name = selected_year1
+#     ))
+#     traces.append(go.Scatter(
+#         y = rolling_year2,
+#         name = selected_year2
+#     ))
+
+#     return {
+#         'data': traces,
+#         'layout': go.Layout(
+#             xaxis = {'title': 'YEAR'},
+#             yaxis = {'title': 'TMAX'},
+#             hovermode = 'closest',
+#             title = '3 Day Rolling Avg'
+#         )
+#     }
 
 @app.callback(Output('graph2', 'figure'),
               [Input('year-picker1', 'value'),

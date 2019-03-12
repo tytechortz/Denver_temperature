@@ -11,6 +11,7 @@ todays_date = datetime.datetime.now().date()
 # index = pd.date_range(todays_date-datetime.timedelta(period.days), periods=period.days, freq='D')
 index = pd.date_range('1948-01-01', periods=period.days)
 
+
 columns = ['TMAX','TMIN']
 
 df = pd.DataFrame(index=index, columns=columns)
