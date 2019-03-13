@@ -48,7 +48,9 @@ drl = annual_max_mean_rankings.size
 current_year = datetime.now().year
 current_day = datetime.now().day
 df_cy = df.loc['2019-01-01':]
-
+cy_max = df_cy.loc[df_cy['TMAX'].idxmax()]
+cy_min = df_cy.loc[df_cy['TMIN'].idxmin()]
+print(cy_min)
 
 
 year = []
@@ -130,14 +132,14 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("Yearly High: {:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
+                html.H6("Yearly High: {:,.1f} Deg F, {}".format(cy_max['TMAX'], cy_max['DATE'])),
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("Yearly Low: {:,.1f} Deg F, {}".format(record_min['TMIN'], record_min['DATE'])),
+                html.H6("Yearly Low: {:,.1f} Deg F, {}".format(cy_min['TMIN'], cy_min['DATE'])),
             ]),
             width={'size':6},
             style={'text-align':'center'}
