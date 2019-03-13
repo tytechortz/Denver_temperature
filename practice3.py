@@ -32,6 +32,7 @@ df['datetime']= pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
 
 record_max = df.loc[df['TMAX'].idxmax()]
+record_min = df.loc[df['TMIN'].idxmin()]
 print(record_max)
 
 
@@ -123,18 +124,35 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("Record High-{:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
+                html.H6("Record High: {:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
-        # dbc.Col(
-        #     html.Div([
-        #         html.H6("Record
-        #     width={'size':6},
-        #     style={'text-align':'center'}
-        # ),
+        dbc.Col(
+            html.Div([
+                html.H6("Record Low: {:,.1f} Deg F, {}".format(record_min['TMIN'], record_min['DATE'])),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
     ]),
+    dbc.Row([
+            dbc.Col(
+                html.Div([
+                    html.H4('Warmest Years-Mean Max ',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':6},
+                style={'height':30, 'text-align':'center'} 
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H4('Warmest Years-Mean Min',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':6},
+                style={'height':30, 'text-align':'center'} 
+            ),
+        ]),
     
 ])
 
