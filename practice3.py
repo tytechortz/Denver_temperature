@@ -30,6 +30,16 @@ df_norms_min = pd.read_csv('./daily_normal_min.csv')
 
 df['datetime']= pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
+
+record_max = df.loc[df['TMAX'].idxmax()]
+print(record_max)
+
+
+
+
+
+
+
 df_ya_max = df.resample('Y').mean()
 # removes final year in df
 df5 = df_ya_max[:-1]
@@ -80,7 +90,7 @@ body = dbc.Container([
     dbc.Row(
         [
             dbc.Col(
-                html.H2('SELECT YEARS', style={'text-align':'center'})
+                html.H2('SELECT YEAR', style={'text-align':'center'})
             ),
             dbc.Col(
                 html.H2('SELECT PARAMETER', style={'text-align':'center'})
@@ -103,14 +113,29 @@ body = dbc.Container([
         ],
         justify='around',
     ),
-    dbc.Row(
-        [
+    dbc.Row([
             dbc.Col(
                 html.Div(
                     html.H3(id='stats',style={'text-align':'center'}),
                 ),
             ),
-        ]),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("Record High-{:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        # dbc.Col(
+        #     html.Div([
+        #         html.H6("Record
+        #     width={'size':6},
+        #     style={'text-align':'center'}
+        # ),
+    ]),
+    
 ])
 
 @app.callback(Output('graph1', 'figure'),
@@ -131,7 +156,6 @@ def update_figure(selected_year, param):
             y = df_norms_max['DLY-TMAX-NORMAL'],
             name = "Normal Max T"
         ))
-        # year_param = filtered_year['TMAX']
     elif param == 'min':  
         traces.append(go.Scatter(
         y = year_param_min,
@@ -141,12 +165,6 @@ def update_figure(selected_year, param):
             y = df_norms_min['DLY-TMIN-NORMAL'],
             name = "Normal Min T"
         ))
-        # year_param = filtered_year['TMIN']
-    # year_MAXT = filtered_year['TMAX']
-    # year_MINT = filtered_year["TMIN"]
-
-    
-
     return {
         'data': traces,
         'layout': go.Layout(
