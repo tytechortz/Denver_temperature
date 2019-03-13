@@ -25,7 +25,8 @@ pd.options.mode.chained_assignment = None  # default='warn'
 df = pd.read_csv('./stapleton.csv')
 
 # daily normal temperatures
-df_norms = pd.read_csv('./daily_normal_max.csv')
+df_norms_max = pd.read_csv('./daily_normal_max.csv')
+df_norms_min = pd.read_csv('./daily_normal_min.csv')
 
 df['datetime']= pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
@@ -102,6 +103,14 @@ body = dbc.Container([
         ],
         justify='around',
     ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.Div(
+                    html.H3(id='stats',style={'text-align':'center'}),
+                ),
+            ),
+        ]),
 ])
 
 @app.callback(Output('graph1', 'figure'),
@@ -110,22 +119,33 @@ body = dbc.Container([
 def update_figure(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     traces = []
+    year_param_max = filtered_year['TMAX']
+    year_param_min = filtered_year['TMIN']
     print(param)
     if param == 'max':
-        year_param = filtered_year['TMAX']
-    else:
-        year_param = filtered_year['TMIN']
+        traces.append(go.Scatter(
+        y = year_param_max,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_max['DLY-TMAX-NORMAL'],
+            name = "Normal Max T"
+        ))
+        # year_param = filtered_year['TMAX']
+    elif param == 'min':  
+        traces.append(go.Scatter(
+        y = year_param_min,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_min['DLY-TMIN-NORMAL'],
+            name = "Normal Min T"
+        ))
+        # year_param = filtered_year['TMIN']
     # year_MAXT = filtered_year['TMAX']
     # year_MINT = filtered_year["TMIN"]
 
-    traces.append(go.Scatter(
-        y = year_param,
-        name = param
-    ))
-    traces.append(go.Scatter(
-        y = df_norms['DLY-TMAX-NORMAL'],
-        name = "Normal Max T"
-    ))
+    
 
     return {
         'data': traces,
@@ -136,6 +156,11 @@ def update_figure(selected_year, param):
             title = '3 Day Rolling Avg'
         )
     }
+
+@app.callback(Output('stats', 'children'),
+              [Input('year-picker', 'value')])
+def update_layout_i(selected_year1):
+    return 'Stats for {}'.format(selected_year1)
 
 
 app.layout = html.Div(body)
