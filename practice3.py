@@ -21,8 +21,15 @@ app.config['suppress_callback_exceptions']=True
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+current_year = datetime.now().year
+current_day = datetime.now().day
+today = time.strftime("%Y-%m-%d")
+
 # df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
-df = pd.read_csv('./stapleton.csv')
+df_old = pd.read_csv('./stapleton.csv')
+df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard')
+df = pd.concat([df_old, df_new])
+
 
 # daily normal temperatures
 df_norms_max = pd.read_csv('./daily_normal_max.csv')
@@ -45,14 +52,10 @@ annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
 drl = annual_max_mean_rankings.size
 
 # current year stats
-current_year = datetime.now().year
-current_day = datetime.now().day
-df_cy = df.loc['2019-01-01':]
-cy_max = df_cy.loc[df_cy['TMAX'].idxmax()]
-cy_min = df_cy.loc[df_cy['TMIN'].idxmin()]
-print(cy_min)
+cy_max = df_new.loc[df_new['TMAX'].idxmax()]
+cy_min = df_new.loc[df_new['TMIN'].idxmin()]
 
-
+#  year list for dropdown selector
 year = []
 for YEAR in df.index.year.unique():
     year.append({'label':(YEAR), 'value':YEAR})
