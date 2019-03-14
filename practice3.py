@@ -54,8 +54,11 @@ drl = annual_max_mean_rankings.size
 # current year stats
 cy_max = df_new.loc[df_new['TMAX'].idxmax()]
 cy_min = df_new.loc[df_new['TMIN'].idxmin()]
+cy_max_mean = df_new['TMAX'].mean()
+cy_min_mean = df_new['TMIN'].mean()
+print(cy_max_mean)
 
-#  year list for dropdown selector
+# year list for dropdown selector
 year = []
 for YEAR in df.index.year.unique():
     year.append({'label':(YEAR), 'value':YEAR})
@@ -143,6 +146,22 @@ body = dbc.Container([
         dbc.Col(
             html.Div([
                 html.H6("Yearly Low: {:,.1f} Deg F, {}".format(cy_min['TMIN'], cy_min['DATE'])),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("YTD Max Mean: {:,.1f} Deg F".format(cy_max_mean)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("YTD Min Mean: {:,.1f} Deg F".format(cy_min_mean)),
             ]),
             width={'size':6},
             style={'text-align':'center'}
