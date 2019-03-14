@@ -45,15 +45,29 @@ record_max = df.loc[df['TMAX'].idxmax()]
 record_min = df.loc[df['TMIN'].idxmin()]
 
 df_ya_max = df.resample('Y').mean()
+df_da = df_ya_max.groupby((df_ya_max.index.year//10)*10).mean()
+print(df_da)
 # removes final year in df
 df5 = df_ya_max[:-1]
+# removes final decade in dacade averages
+df10 = df_da[0:-1]
+
+
+df_da_cd = (df5[-9:]).mean()
+df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
 df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
+df10['combined'] = (df10['TMAX'] + df10['TMIN']) / 2
+print(df10)
+df_da['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
+# df_da_cd['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
+df10.loc['2010'] = df_da_cd
+print(df10)
+
 
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
 annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=True)
-print(annual_combined_rankings)
 drl = annual_max_mean_rankings.size
 
 # current year stats
@@ -145,7 +159,7 @@ body = dbc.Container([
                 width = {'size': 2}),
             dbc.Col(
                 html.H4('{}'.format(df['DATE'][-1]), style={'text-align': 'center'}),
-                width = {'size': 4}),
+                width = {'size': 2}),
             dbc.Col(
                 dcc.RadioItems(id='param', options=[
                     {'label':'MAX TEMP','value':'max'},
@@ -233,22 +247,22 @@ body = dbc.Container([
             style={'text-align':'center'}
         ),
     ]),
-    # dbc.Row([
-    #     dbc.Col(
-    #         html.Div([
-    #             html.H6("Record High: {:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
-    #         ]),
-    #         width={'size':6},
-    #         style={'text-align':'center'}
-    #     ),
-    #     dbc.Col(
-    #         html.Div([
-    #             html.H6("Record Low: {:,.1f} Deg F, {}".format(record_min['TMIN'], record_min['DATE'])),
-    #         ]),
-    #         width={'size':6},
-    #         style={'text-align':'center'}
-    #     ),
-    # ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("Most 90 Degree Days: {:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("Most Days Below 0: {:,.1f} Deg F, {}".format(record_min['TMIN'], record_min['DATE'])),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
     dbc.Row([
             dbc.Col(
                 html.Div([
