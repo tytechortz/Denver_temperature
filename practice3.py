@@ -164,6 +164,22 @@ body = dbc.Container([
             style={'text-align':'center'}
         ),
     ]),
+    # dbc.Row([
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Record High: {:,.1f} Deg F, {}".format(record_max['TMAX'], record_max['DATE'])),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Record Low: {:,.1f} Deg F, {}".format(record_min['TMIN'], record_min['DATE'])),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    # ]),
     dbc.Row([
             dbc.Col(
                 html.Div([
