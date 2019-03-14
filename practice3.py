@@ -25,18 +25,20 @@ current_year = datetime.now().year
 current_day = datetime.now().day
 today = time.strftime("%Y-%m-%d")
 
+# daily normal temperatures
+df_norms_max = pd.read_csv('./daily_normal_max.csv')
+df_norms_min = pd.read_csv('./daily_normal_min.csv')
+
 # df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
 df_old = pd.read_csv('./stapleton.csv')
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard')
 df = pd.concat([df_old, df_new])
 
 
-# daily normal temperatures
-df_norms_max = pd.read_csv('./daily_normal_max.csv')
-df_norms_min = pd.read_csv('./daily_normal_min.csv')
-
-df['datetime']= pd.to_datetime(df['DATE'])
+df['datetime'] = pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
+# df_new['datetime'] = pd.to_datetime(df_new['DATE'])
+# df_new = df_new.set_index('datetime')
 
 # record high and low
 record_max = df.loc[df['TMAX'].idxmax()]
@@ -56,7 +58,21 @@ cy_max = df_new.loc[df_new['TMAX'].idxmax()]
 cy_min = df_new.loc[df_new['TMIN'].idxmin()]
 cy_max_mean = df_new['TMAX'].mean()
 cy_min_mean = df_new['TMIN'].mean()
-print(cy_max_mean)
+
+# days max above normal
+dman = 0
+i = 0
+print(df_new.loc[i]['TMAX'])
+print(df_norms_max.loc[i]['DLY-TMAX-NORMAL'])
+print(df_new['TMAX'].count())
+print(df_new['TMAX'].count()-1)
+while i < df_new['TMAX'].count():
+    if df_new.loc[i]['TMAX'] > df_norms_max.loc[i]['DLY-TMAX-NORMAL']:
+        dman = dman + 1
+        i = i + 1
+    else:i = i + 1
+print(dman)
+
 
 # year list for dropdown selector
 year = []
@@ -411,7 +427,7 @@ def update_figure(selected_year, param):
             xaxis = {'title': 'DAY'},
             yaxis = {'title': 'TMAX'},
             hovermode = 'closest',
-            title = '3 Day Rolling Avg'
+            title = ''
         )
     }
 
