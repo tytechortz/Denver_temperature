@@ -46,20 +46,24 @@ record_min = df.loc[df['TMIN'].idxmin()]
 
 df_ya_max = df.resample('Y').mean()
 df_da = df_ya_max.groupby((df_ya_max.index.year//10)*10).mean()
-print(df_da)
+
 # removes final year in df
 df5 = df_ya_max[:-1]
 # removes final decade in dacade averages
 df10 = df_da[0:-1]
 
-
-df_da_cd = (df5[-9:]).mean()
+# filters for completed years in current decade
+# current_year_index = current_year[-1]
+print(current_year)
+current_year_decade = current_year%10
+print(current_year_decade)
+df_da_cd = (df5[-(current_year_decade):]).mean()
 df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
 df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
 df10['combined'] = (df10['TMAX'] + df10['TMIN']) / 2
-print(df10)
+
 df_da['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
-# df_da_cd['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
+# add current decade to decade list
 df10.loc['2010'] = df_da_cd
 print(df10)
 
