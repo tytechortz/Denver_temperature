@@ -60,19 +60,22 @@ cy_max_mean = df_new['TMAX'].mean()
 cy_min_mean = df_new['TMIN'].mean()
 
 # days max above normal
-dman = 0
+dmaxan = 0
 i = 0
-print(df_new.loc[i]['TMAX'])
-print(df_norms_max.loc[i]['DLY-TMAX-NORMAL'])
-print(df_new['TMAX'].count())
-print(df_new['TMAX'].count()-1)
 while i < df_new['TMAX'].count():
     if df_new.loc[i]['TMAX'] > df_norms_max.loc[i]['DLY-TMAX-NORMAL']:
-        dman = dman + 1
+        dmaxan = dmaxan + 1
         i = i + 1
     else:i = i + 1
-print(dman)
 
+# day min above normal
+dminan = 0
+i = 0
+while i < df_new['TMIN'].count():
+    if df_new.loc[i]['TMIN'] > df_norms_min.loc[i]['DLY-TMIN-NORMAL']:
+        dminan = dminan + 1
+        i = i + 1
+    else:i = i + 1
 
 # year list for dropdown selector
 year = []
@@ -178,6 +181,22 @@ body = dbc.Container([
         dbc.Col(
             html.Div([
                 html.H6("YTD Min Mean: {:,.1f} Deg F".format(cy_min_mean)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("Days High Above Normal: {} ".format(dmaxan)),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("Days Low Above Normal: {} ".format(dminan)),
             ]),
             width={'size':6},
             style={'text-align':'center'}
