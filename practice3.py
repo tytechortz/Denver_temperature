@@ -61,17 +61,23 @@ df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
 df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
 df10['combined'] = (df10['TMAX'] + df10['TMIN']) / 2
 
+
 df_da['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
 # add current decade to decade list
 df10.loc['2010'] = df_da_cd
-
+# sorts decade combined temps
+decade_combined_rankings = df10['combined'].sort_values(axis=0, ascending=True)
+decade_max_rankings = df10['TMAX'].sort_values(axis=0, ascending=True)
+decade_min_rankings = df10['TMIN'].sort_values(axis=0, ascending=True)
+arl = decade_combined_rankings.size
 
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
 annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=True)
 drl = annual_max_mean_rankings.size
-
+print(type(annual_combined_rankings))
+print(decade_combined_rankings.iloc[1])
 # current year stats
 cy_max = df_new.loc[df_new['TMAX'].idxmax()]
 cy_min = df_new.loc[df_new['TMIN'].idxmin()]
@@ -318,6 +324,121 @@ body = dbc.Container([
                 style={'height':30, 'text-align':'center'} 
             ),
         ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-1],decade_max_rankings.iloc[arl-1])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-1],decade_min_rankings.iloc[arl-1])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-1],decade_combined_rankings.iloc[arl-1])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-2],decade_max_rankings.iloc[arl-2])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-2],decade_min_rankings.iloc[arl-2])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-2],decade_combined_rankings.iloc[arl-2])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-3],decade_max_rankings.iloc[arl-3])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-3],decade_min_rankings.iloc[arl-3])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-3],decade_combined_rankings.iloc[arl-3])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-4],decade_max_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-4],decade_min_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-4],decade_combined_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-5],decade_max_rankings.iloc[arl-5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-5],decade_min_rankings.iloc[arl-5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-5],decade_combined_rankings.iloc[arl-5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
     dbc.Row([
             dbc.Col(
                 html.Div([
@@ -942,14 +1063,14 @@ def update_layout_g(selected_year, param):
                 dmaxan = dmaxan + 1
                 i = i + 1
             else: i = i + 1    
-        return 'Days High Above Normal: {}'.format(dmaxan)
+        return 'Days High Above Normal: {}/{}'.format(dmaxan, i)
     elif param == 'TMIN':
         while i < filtered_year["TMIN"].count():
             if filtered_year.iloc[i]['TMIN'] < df_norms_min.iloc[i]['DLY-TMIN-NORMAL']:
                 dminan = dminan + 1
                 i = i + 1
             else: i = i + 1
-        return 'Days Low Below Normal: {}'.format(dminan)
+        return 'Days Low Below Normal: {}/{}'.format(dminan, i)
 
 # days max above normal
 # dmaxan = 0
