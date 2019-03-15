@@ -192,6 +192,22 @@ body = dbc.Container([
             style={'text-align':'center'}
         ),
     ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6(id='days-above/below-normal')
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6(id='days-above-90/below-freezing'),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
     # dbc.Row([
     #     dbc.Col(
     #         html.Div([
@@ -861,9 +877,9 @@ def update_layout_b(selected_year, param):
     yearly_max = filtered_year.loc[filtered_year['' + param + ''].idxmax()]
     yearly_min = filtered_year.loc[filtered_year['' + param + ''].idxmin()]
     if param == 'TMAX':
-        return 'Yearly High: {}, {}'.format(yearly_max['' + param + ''], yearly_max['DATE'])
+        return 'Yearly High: {}, {}'.format(yearly_max['TMAX'], yearly_max['DATE'])
     elif param == 'TMIN':
-        return 'Yearly Low: {}, {}'.format(yearly_min[''+ param +''], yearly_min['DATE'])
+        return 'Yearly Low: {}, {}'.format(yearly_min['TMIN'], yearly_min['DATE'])
 
 @app.callback(Output('mean-max/min', 'children'),
               [Input('year-picker', 'value'),
@@ -874,6 +890,18 @@ def update_layout_c(selected_year, param):
         return 'Mean Max Temp: {:,.1f}'.format(filtered_year['TMAX'].mean())
     elif param == 'TMIN':
         return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
+
+@app.callback(Output('days-above/below-normal', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_d(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_hundred = (filtered_year['TMAX'] >= 100).sum()
+    da_below_zero = (filtered_year['TMIN'] < 0).sum()
+    if param == 'TMAX':
+        return '90 Degree Days: {}'.format(da_hundred)
+    elif param == 'TMIN':
+        return 'Days Below 0: {}'.format(da_below_zero)
 
 
 
