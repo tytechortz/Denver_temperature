@@ -33,7 +33,9 @@ df_norms_min = pd.read_csv('./daily_normal_min.csv')
 df_old = pd.read_csv('./stapleton.csv')
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard')
 df = pd.concat([df_old, df_new])
-
+df1 = pd.concat([df_old, df_new], ignore_index=True)
+df1['datetime'] = pd.to_datetime(df1['DATE'])
+df1 = df1.set_index('datetime')
 
 df['datetime'] = pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
@@ -62,7 +64,7 @@ df10['combined'] = (df10['TMAX'] + df10['TMIN']) / 2
 df_da['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
 # add current decade to decade list
 df10.loc['2010'] = df_da_cd
-print(df10)
+
 
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
@@ -75,24 +77,6 @@ cy_max = df_new.loc[df_new['TMAX'].idxmax()]
 cy_min = df_new.loc[df_new['TMIN'].idxmin()]
 cy_max_mean = df_new['TMAX'].mean()
 cy_min_mean = df_new['TMIN'].mean()
-
-# days max above normal
-dmaxan = 0
-i = 0
-while i < df_new['TMAX'].count():
-    if df_new.loc[i]['TMAX'] > df_norms_max.loc[i]['DLY-TMAX-NORMAL']:
-        dmaxan = dmaxan + 1
-        i = i + 1
-    else:i = i + 1
-
-# day min above normal
-dminan = 0
-i = 0
-while i < df_new['TMIN'].count():
-    if df_new.loc[i]['TMIN'] > df_norms_min.loc[i]['DLY-TMIN-NORMAL']:
-        dminan = dminan + 1
-        i = i + 1
-    else:i = i + 1
 
 # year list for dropdown selector
 year = []
@@ -195,14 +179,30 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6(id='days-above/below-normal')
+                html.H6(id='days-above-100/below-0')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6(id='days-above-90/below-freezing'),
+                html.H6(id='days-above-90/high-below-0'),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6(id='days-above-80/below-32')
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6(id='days-above-normal/below-normal'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -891,7 +891,7 @@ def update_layout_c(selected_year, param):
     elif param == 'TMIN':
         return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
 
-@app.callback(Output('days-above/below-normal', 'children'),
+@app.callback(Output('days-above-100/below-0', 'children'),
               [Input('year-picker', 'value'),
               Input('param', 'value')])
 def update_layout_d(selected_year, param):
@@ -899,11 +899,75 @@ def update_layout_d(selected_year, param):
     da_hundred = (filtered_year['TMAX'] >= 100).sum()
     da_below_zero = (filtered_year['TMIN'] < 0).sum()
     if param == 'TMAX':
-        return '90 Degree Days: {}'.format(da_hundred)
+        return '100 Degree Days: {} - Normal: 8'.format(da_hundred)
     elif param == 'TMIN':
-        return 'Days Below 0: {}'.format(da_below_zero)
+        return 'Days Below 0: {} - Normal: 6.7'.format(da_below_zero)
 
+@app.callback(Output('days-above-90/high-below-0', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_e(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_ninety = (filtered_year['TMAX'] >= 90).sum()
+    da_high_below_32 = (filtered_year['TMAX'] < 32).sum()
+    if param == 'TMAX':
+        return '90 Degree Days: {} - Normal: 30.6'.format(da_ninety)
+    elif param == 'TMIN':
+        return 'Days High Below 32: {} - Normal: 21'.format(da_high_below_32)
 
+@app.callback(Output('days-above-80/below-32', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_f(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_80 = (filtered_year['TMAX'] >= 80).sum()
+    da_below_32 = (filtered_year['TMIN'] < 32).sum()
+    if param == 'TMAX':
+        return '80 Degree Days: {} - Normal: 95.5'.format(da_80)
+    elif param == 'TMIN':
+        return 'Days Below 0: {} - Normal: 156.5'.format(da_below_32)
+
+@app.callback(Output('days-above-normal/below-normal', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_g(selected_year, param):
+    filtered_year = df1[df1.index.year == selected_year]
+    dmaxan = 0
+    dminan = 0
+    i = 0
+    df_norms_max.loc[i]['DLY-TMAX-NORMAL'] 
+    if param == 'TMAX':
+        while i < filtered_year["TMAX"].count():
+            if filtered_year.iloc[i]['TMAX'] > df_norms_max.iloc[i]['DLY-TMAX-NORMAL']:
+                dmaxan = dmaxan + 1
+                i = i + 1
+            else: i = i + 1    
+        return 'Days High Above Normal: {}'.format(dmaxan)
+    elif param == 'TMIN':
+        while i < filtered_year["TMIN"].count():
+            if filtered_year.iloc[i]['TMIN'] < df_norms_min.iloc[i]['DLY-TMIN-NORMAL']:
+                dminan = dminan + 1
+                i = i + 1
+            else: i = i + 1
+        return 'Days Low Below Normal: {}'.format(dminan)
+
+# days max above normal
+# dmaxan = 0
+# i = 0
+# while i < df_new['TMAX'].count():
+#     if df_new.loc[i]['TMAX'] > df_norms_max.loc[i]['DLY-TMAX-NORMAL']:
+#         dmaxan = dmaxan + 1
+#         i = i + 1
+#     else:i = i + 1
+
+# # day min above normal
+# dminan = 0
+# i = 0
+# while i < df_new['TMIN'].count():
+#     if df_new.loc[i]['TMIN'] > df_norms_min.loc[i]['DLY-TMIN-NORMAL']:
+#         dminan = dminan + 1
+#         i = i + 1
+#     else:i = i + 1
 
 app.layout = html.Div(body)
 
