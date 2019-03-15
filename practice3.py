@@ -37,8 +37,6 @@ df = pd.concat([df_old, df_new])
 
 df['datetime'] = pd.to_datetime(df['DATE'])
 df = df.set_index('datetime')
-# df_new['datetime'] = pd.to_datetime(df_new['DATE'])
-# df_new = df_new.set_index('datetime')
 
 # record high and low
 record_max = df.loc[df['TMAX'].idxmax()]
@@ -53,11 +51,9 @@ df5 = df_ya_max[:-1]
 df10 = df_da[0:-1]
 
 # filters for completed years in current decade
-# current_year_index = current_year[-1]
-print(current_year)
 current_year_decade = current_year%10
 current_year_indexer = current_year_decade + 1
-print(current_year_indexer)
+
 df_da_cd = (df5[-(current_year_indexer):]).mean()
 df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
 df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
@@ -67,7 +63,6 @@ df_da['combined'] = (df_da['TMAX'] + df_da['TMIN']) / 2
 # add current decade to decade list
 df10.loc['2010'] = df_da_cd
 print(df10)
-
 
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
@@ -167,8 +162,8 @@ body = dbc.Container([
                 width = {'size': 2}),
             dbc.Col(
                 dcc.RadioItems(id='param', options=[
-                    {'label':'MAX TEMP','value':'max'},
-                    {'label':'MIN TEMP','value':'min'}
+                    {'label':'MAX TEMP','value':'TMAX'},
+                    {'label':'MIN TEMP','value':'TMIN'}
                     ]),
                 width = {'size': 2}),    
         ],
@@ -184,51 +179,67 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("Yearly High: {:,.1f} Deg F, {}".format(cy_max['TMAX'], cy_max['DATE'])),
+                html.H6(id='yearly-high/low')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("Yearly Low: {:,.1f} Deg F, {}".format(cy_min['TMIN'], cy_min['DATE'])),
+                html.H6(id='mean-max/min'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
     ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("YTD Mean Max: {:,.1f} Deg F".format(cy_max_mean)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("YTD Mean Min: {:,.1f} Deg F".format(cy_min_mean)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("Days High Above Normal: {} ".format(dmaxan)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("Days Low Above Normal: {} ".format(dminan)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
-        ),
-    ]),
+    # dbc.Row([
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Yearly High: {:,.1f} Deg F, {}".format(cy_max['TMAX'], cy_max['DATE'])),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Yearly Low: {:,.1f} Deg F, {}".format(cy_min['TMIN'], cy_min['DATE'])),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    # ]),
+    # dbc.Row([
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("YTD Mean Max: {:,.1f} Deg F".format(cy_max_mean)),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("YTD Mean Min: {:,.1f} Deg F".format(cy_min_mean)),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    # ]),
+    # dbc.Row([
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Days High Above Normal: {} ".format(dmaxan)),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    #     dbc.Col(
+    #         html.Div([
+    #             html.H6("Days Low Above Normal: {} ".format(dminan)),
+    #         ]),
+    #         width={'size':6},
+    #         style={'text-align':'center'}
+    #     ),
+    # ]),
     dbc.Row([
             dbc.Col(
                 html.Div(
@@ -268,6 +279,29 @@ body = dbc.Container([
             style={'text-align':'center'}
         ),
     ]),
+    dbc.Row([
+            dbc.Col(
+                html.Div([
+                    html.H4('Decade Rankings-Mean Max ',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':4},
+                style={'height':30, 'text-align':'center'} 
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H4('Decade Rankings-Mean Min',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':4},
+                style={'height':30, 'text-align':'center'} 
+            ),
+            dbc.Col(
+                html.Div([
+                    html.H4('Decade Rankings-Overall',style={'color': 'black','font-size':20}),
+                ]),
+                width={'size':4},
+                style={'height':30, 'text-align':'center'} 
+            ),
+        ]),
     dbc.Row([
             dbc.Col(
                 html.Div([
@@ -783,10 +817,10 @@ body = dbc.Container([
 def update_figure(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     traces = []
-    year_param_max = filtered_year['TMAX']
-    year_param_min = filtered_year['TMIN']
+    year_param_max = filtered_year['' + param + '']
+    year_param_min = filtered_year[''+ param + '']
     print(param)
-    if param == 'max':
+    if param == 'TMAX':
         traces.append(go.Scatter(
         y = year_param_max,
         name = param
@@ -795,7 +829,7 @@ def update_figure(selected_year, param):
             y = df_norms_max['DLY-TMAX-NORMAL'],
             name = "Normal Max T"
         ))
-    elif param == 'min':  
+    elif param == 'TMIN':  
         traces.append(go.Scatter(
         y = year_param_min,
         name = param
@@ -816,8 +850,31 @@ def update_figure(selected_year, param):
 
 @app.callback(Output('stats', 'children'),
               [Input('year-picker', 'value')])
-def update_layout_i(selected_year1):
-    return 'Stats for {}'.format(selected_year1)
+def update_layout_a(selected_year):
+    return 'Stats for {}'.format(selected_year)
+
+@app.callback(Output('yearly-high/low', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_b(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    yearly_max = filtered_year.loc[filtered_year['' + param + ''].idxmax()]
+    yearly_min = filtered_year.loc[filtered_year['' + param + ''].idxmin()]
+    if param == 'TMAX':
+        return 'Yearly High: {}, {}'.format(yearly_max['' + param + ''], yearly_max['DATE'])
+    elif param == 'TMIN':
+        return 'Yearly Low: {}, {}'.format(yearly_min[''+ param +''], yearly_min['DATE'])
+
+@app.callback(Output('mean-max/min', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_c(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    if param == 'TMAX':
+        return 'Mean Max Temp: {:,.1f}'.format(filtered_year['TMAX'].mean())
+    elif param == 'TMIN':
+        return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
+
 
 
 app.layout = html.Div(body)
