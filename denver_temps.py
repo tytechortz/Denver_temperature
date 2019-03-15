@@ -53,7 +53,7 @@ allmin_rolling_mean = allmin_rolling.mean()
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
 drl = annual_max_mean_rankings.size
-print(df5['TMIN'])
+
 
 
 

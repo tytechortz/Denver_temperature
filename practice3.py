@@ -166,6 +166,14 @@ body = dbc.Container([
                 ),
             ),
     ]),
+
+    dbc.Row([
+            dbc.Col(
+                html.Div(
+                    html.H(id='stats',style={'text-align':'center'}),
+                ),
+            ),
+    ]),
     dbc.Row([
         dbc.Col(
             html.Div([
@@ -327,44 +335,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-1],decade_max_rankings.iloc[arl-1])),
+                html.H6("1. {} - {:,.1f} Deg F".format(decade_max_rankings.index[arl-1],decade_max_rankings.iloc[arl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-1],decade_min_rankings.iloc[arl-1])),
+                html.H6("1. {} - {:,.1f} Deg F".format(decade_min_rankings.index[arl-1],decade_min_rankings.iloc[arl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-1],decade_combined_rankings.iloc[arl-1])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-2],decade_max_rankings.iloc[arl-2])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-2],decade_min_rankings.iloc[arl-2])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-2],decade_combined_rankings.iloc[arl-2])),
+                html.H6("1. {} - {:,.1f} Deg F".format(decade_combined_rankings.index[arl-1],decade_combined_rankings.iloc[arl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -373,44 +358,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-3],decade_max_rankings.iloc[arl-3])),
+                html.H6("2. {} - {:,.1f} Deg F".format(decade_max_rankings.index[arl-2],decade_max_rankings.iloc[arl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-3],decade_min_rankings.iloc[arl-3])),
+                html.H6("2. {} - {:,.1f} Deg F".format(decade_min_rankings.index[arl-2],decade_min_rankings.iloc[arl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-3],decade_combined_rankings.iloc[arl-3])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-4],decade_max_rankings.iloc[arl-4])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-4],decade_min_rankings.iloc[arl-4])),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-4],decade_combined_rankings.iloc[arl-4])),
+                html.H6("2. {} - {:,.1f} Deg F".format(decade_combined_rankings.index[arl-2],decade_combined_rankings.iloc[arl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -419,21 +381,67 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_max_rankings.index[arl-5],decade_max_rankings.iloc[arl-5])),
+                html.H6("3. {} - {:,.1f} Deg F".format(decade_max_rankings.index[arl-3],decade_max_rankings.iloc[arl-3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_min_rankings.index[arl-5],decade_min_rankings.iloc[arl-5])),
+                html.H6("3. {} - {:,.1f} Deg F".format(decade_min_rankings.index[arl-3],decade_min_rankings.iloc[arl-3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {} ,  {:,.1f} Deg F".format(decade_combined_rankings.index[arl-5],decade_combined_rankings.iloc[arl-5])),
+                html.H6("3. {} - {:,.1f} Deg F".format(decade_combined_rankings.index[arl-3],decade_combined_rankings.iloc[arl-3])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("4. {} - {:,.1f} Deg F".format(decade_max_rankings.index[arl-4],decade_max_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("4. {} - {:,.1f} Deg F".format(decade_min_rankings.index[arl-4],decade_min_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("4. {} - {:,.1f} Deg F".format(decade_combined_rankings.index[arl-4],decade_combined_rankings.iloc[arl-4])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("5. {} - {:,.1f} Deg F".format(decade_max_rankings.index[arl-5],decade_max_rankings.iloc[arl-5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("5. {} - {:,.1f} Deg F".format(decade_min_rankings.index[arl-5],decade_min_rankings.iloc[arl-5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("5. {} - {:,.1f} Deg F".format(decade_combined_rankings.index[arl-5],decade_combined_rankings.iloc[arl-5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -465,44 +473,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-1], annual_max_mean_rankings.index[drl-1].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-1].year, annual_max_mean_rankings[drl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-1], annual_min_mean_rankings.index[drl-1].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-1].year, annual_min_mean_rankings[drl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-1], annual_combined_rankings.index[drl-1].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-2], annual_max_mean_rankings.index[drl-2].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-2], annual_min_mean_rankings.index[drl-2].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-2], annual_combined_rankings.index[drl-2].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-1].year, annual_combined_rankings[drl-1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -511,44 +496,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-3], annual_max_mean_rankings.index[drl-3].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-2].year, annual_max_mean_rankings[drl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-3], annual_min_mean_rankings.index[drl-3].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-2].year, annual_min_mean_rankings[drl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-3], annual_combined_rankings.index[drl-3].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-4], annual_max_mean_rankings.index[drl-4].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-4], annual_min_mean_rankings.index[drl-4].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-4], annual_combined_rankings.index[drl-4].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-2].year, annual_combined_rankings[drl-2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -557,44 +519,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-5], annual_max_mean_rankings.index[drl-5].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-3].year, annual_max_mean_rankings[drl-3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-5], annual_min_mean_rankings.index[drl-5].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-3].year, annual_min_mean_rankings[drl-3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-5], annual_combined_rankings.index[drl-5].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-6], annual_max_mean_rankings.index[drl-6].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-6], annual_min_mean_rankings.index[drl-6].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-6], annual_combined_rankings.index[drl-6].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-3].year, annual_combined_rankings[drl-3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -603,44 +542,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-7], annual_max_mean_rankings.index[drl-7].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-4].year, annual_max_mean_rankings[drl-4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-7], annual_min_mean_rankings.index[drl-7].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-4].year, annual_min_mean_rankings[drl-4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-7], annual_combined_rankings.index[drl-7].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-8], annual_max_mean_rankings.index[drl-8].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-8], annual_min_mean_rankings.index[drl-8].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-8], annual_combined_rankings.index[drl-8].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-4].year, annual_combined_rankings[drl-4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -649,21 +565,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-9], annual_max_mean_rankings.index[drl-9].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-5].year, annual_max_mean_rankings[drl-5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-9], annual_min_mean_rankings.index[drl-9].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-5].year, annual_min_mean_rankings[drl-5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-9], annual_combined_rankings.index[drl-9].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-5].year, annual_combined_rankings[drl-5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -672,21 +588,113 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-10], annual_max_mean_rankings.index[drl-10].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-6].year, annual_max_mean_rankings[drl-6])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-10], annual_min_mean_rankings.index[drl-10].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-6].year, annual_min_mean_rankings[drl-6])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_combined_rankings[drl-10], annual_combined_rankings.index[drl-10].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-6].year, annual_combined_rankings[drl-6])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-7].year, annual_max_mean_rankings[drl-7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-7].year, annual_min_mean_rankings[drl-7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-7].year, annual_combined_rankings[drl-7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-8].year, annual_max_mean_rankings[drl-8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-8].year, annual_min_mean_rankings[drl-8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-8].year, annual_combined_rankings[drl-8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-9].year, annual_max_mean_rankings[drl-9])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-9].year, annual_min_mean_rankings[drl-9])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-9].year, annual_combined_rankings[drl-9])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[drl-10].year, annual_max_mean_rankings[drl-10])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[drl-10].year, annual_min_mean_rankings[drl-10])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[drl-10].year, annual_combined_rankings[drl-10])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -718,44 +726,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[0], annual_max_mean_rankings.index[0].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[0].year, annual_max_mean_rankings[0])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[0], annual_min_mean_rankings.index[0].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[0].year, annual_min_mean_rankings[0])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_combined_rankings[0], annual_combined_rankings.index[0].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[1], annual_max_mean_rankings.index[1].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[1], annual_min_mean_rankings.index[1].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_combined_rankings[1], annual_combined_rankings.index[1].year)),
+                html.H6("1. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[0].year, annual_combined_rankings[0])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -764,44 +749,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[2], annual_max_mean_rankings.index[2].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[1].year, annual_max_mean_rankings[1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[2], annual_min_mean_rankings.index[2].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[1].year, annual_min_mean_rankings[1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("3- {:,.1f} Deg F,  {}".format(annual_combined_rankings[2], annual_combined_rankings.index[2].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[3], annual_max_mean_rankings.index[3].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[3], annual_min_mean_rankings.index[3].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("4- {:,.1f} Deg F,  {}".format(annual_combined_rankings[3], annual_combined_rankings.index[3].year)),
+                html.H6("2. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[1].year, annual_combined_rankings[1])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -810,44 +772,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[4], annual_max_mean_rankings.index[4].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[2].year, annual_max_mean_rankings[2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[4], annual_min_mean_rankings.index[4].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[2].year, annual_min_mean_rankings[2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("5- {:,.1f} Deg F,  {}".format(annual_combined_rankings[4], annual_combined_rankings.index[4].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[5], annual_max_mean_rankings.index[5].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[5], annual_min_mean_rankings.index[5].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("6- {:,.1f} Deg F,  {}".format(annual_combined_rankings[5], annual_combined_rankings.index[5].year)),
+                html.H6("3. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[2].year, annual_combined_rankings[2])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -856,44 +795,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[6], annual_max_mean_rankings.index[6].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[3].year, annual_max_mean_rankings[3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[6], annual_min_mean_rankings.index[6].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[3].year, annual_min_mean_rankings[3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("7- {:,.1f} Deg F,  {}".format(annual_combined_rankings[6], annual_combined_rankings.index[6].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-    ]),
-    dbc.Row([
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[7], annual_max_mean_rankings.index[7].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[7], annual_min_mean_rankings.index[7].year)),
-            ]),
-            width={'size':4},
-            style={'text-align':'center'}
-        ),
-        dbc.Col(
-            html.Div([
-                html.H6("8- {:,.1f} Deg F,  {}".format(annual_combined_rankings[7], annual_combined_rankings.index[7].year)),
+                html.H6("4. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[3].year, annual_combined_rankings[3])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -902,21 +818,21 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[8], annual_max_mean_rankings.index[8].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[4].year, annual_max_mean_rankings[4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[8], annual_min_mean_rankings.index[8].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[4].year, annual_min_mean_rankings[4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("9- {:,.1f} Deg F,  {}".format(annual_combined_rankings[8], annual_combined_rankings.index[8].year)),
+                html.H6("5. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[4].year, annual_combined_rankings[4])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
@@ -925,21 +841,113 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[9], annual_max_mean_rankings.index[9].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[5].year, annual_max_mean_rankings[5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[9], annual_min_mean_rankings.index[9].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[5].year, annual_min_mean_rankings[5])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("10- {:,.1f} Deg F,  {}".format(annual_combined_rankings[9], annual_combined_rankings.index[9].year)),
+                html.H6("6. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[5].year, annual_combined_rankings[5])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[6].year, annual_max_mean_rankings[6])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[6].year, annual_min_mean_rankings[6])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("7. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[6].year, annual_combined_rankings[6])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[7].year, annual_max_mean_rankings[7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[7].year, annual_min_mean_rankings[7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("8. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[7].year, annual_combined_rankings[7])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[8].year, annual_max_mean_rankings[8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[8].year, annual_min_mean_rankings[8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("9. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[8].year, annual_combined_rankings[8])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_max_mean_rankings.index[9].year, annual_max_mean_rankings[9])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_min_mean_rankings.index[9].year, annual_min_mean_rankings[9])),
+            ]),
+            width={'size':4},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H6("10. {} - {:,.1f} Deg F".format(annual_combined_rankings.index[9].year, annual_combined_rankings[9])),
             ]),
             width={'size':4},
             style={'text-align':'center'}
