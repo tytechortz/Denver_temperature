@@ -362,8 +362,9 @@ def update_layout_g(selected_year, param):
 @app.callback(Output('temptable', 'data'),
              [Input('selection', 'value')])
 def create_table(selection):
-    print(df10.to_dict('records'))
-    return df10.to_dict('records')
+    print(selection)
+    if selection == 'decades':
+        return df10.to_dict('records')
     
     
 # @app.callback(Output('table', 'columns'),
