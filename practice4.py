@@ -210,12 +210,13 @@ body = dbc.Container([
         dbc.Col(
             dash_table.DataTable(
                 id='temptable',
-                columns=[{
-                    'name': '{}'.format(i),
-                    'id': '{}'.format(i)
-                    } for i in df10.columns],
+                columns=[{}],
+                # columns=[{
+                #     'name': '{}'.format(i),
+                #     'id': '{}'.format(i)
+                #     } for i in df10.columns],
                 data=[{}],
-                # editable=True
+                sorting=True
             ),
         ),
         dbc.Col(
@@ -359,6 +360,14 @@ def update_layout_g(selected_year, param):
             else: i = i + 1
         return 'Days Low Below Normal: {}/{}'.format(dminan, i)
 
+@app.callback(Output('temptable', 'columns'),
+             [Input('selection', 'value')])
+def update_table_a(selection):
+    print(df10.columns.values[0])
+    if selection == 'decades':
+        return [{'name': i, 'id': i} for i in df10.columns]
+        
+
 @app.callback(Output('temptable', 'data'),
              [Input('selection', 'value')])
 def create_table(selection):
@@ -367,16 +376,13 @@ def create_table(selection):
         return df10.to_dict('records')
     
     
-# @app.callback(Output('table', 'columns'),
-#              [Input('selection', 'value')])
-# def update_table_a(selection):
-#     print(selection)
-#     return {
-#         'columns': [{'id': i, 'name': i} for i in df10.columns],
-#     }
+
             
             
-   
+   # columns=[{
+                #     'name': '{}'.format(i),
+                #     'id': '{}'.format(i)
+                #     } for i in df10.columns],
 
 
 app.layout = html.Div(body)
