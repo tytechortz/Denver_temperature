@@ -34,8 +34,8 @@ df_old = pd.read_csv('./stapleton.csv').round(1)
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard').round(1)
 df = pd.concat([df_old, df_new], ignore_index=True)
 
-df['DATE'] = pd.to_datetime(df['DATE'])
-df = df.set_index('DATE')
+df['date'] = pd.to_datetime(df['DATE'])
+df = df.set_index('date')
 
 df_ya_max = df.resample('Y').mean()
 
@@ -62,6 +62,13 @@ df_da_cd = (df5[-(current_year_indexer):]).mean()
 df10.loc['2010'] = df_da_cd
 df10 = df10.round(1)
 df10 = df10.reset_index()
+
+# current year stats
+cy_max = df_new.loc[df_new['TMAX'].idxmax()]
+cy_min = df_new.loc[df_new['TMIN'].idxmin()]
+cy_max_mean = df_new['TMAX'].mean()
+cy_min_mean = df_new['TMIN'].mean()
+
 
 # year list for dropdown selector
 year = []
@@ -130,6 +137,61 @@ body = dbc.Container([
     justify='around',
     ),
     dbc.Row([
+            dbc.Col(
+                html.Div(
+                    html.H3(id='stats',style={'text-align':'center'}),
+                ),
+            ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H5(id='yearly-high/low')
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H5(id='mean-max/min'),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H5(id='days-above-100/below-0')
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H5(id='days-above-90/high-below-0'),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                html.H5(id='days-above-80/below-32')
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+        dbc.Col(
+            html.Div([
+                html.H5(id='days-above-normal/below-normal'),
+            ]),
+            width={'size':6},
+            style={'text-align':'center'}
+        ),
+    ]),
+    dbc.Row([
         dbc.Col([
             dash_table.DataTable(
                 data=df10.to_dict('rows'),
@@ -184,6 +246,87 @@ def update_figure(selected_year, param):
 def update_layout_a(selected_year):
     return 'Stats for {}'.format(selected_year)
 
+@app.callback(Output('yearly-high/low', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_b(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    yearly_max = filtered_year.loc[filtered_year['' + param + ''].idxmax()]
+    yearly_min = filtered_year.loc[filtered_year['' + param + ''].idxmin()]
+    print(yearly_max)
+    if param == 'TMAX':
+        return 'Yearly High: {}, {}'.format(yearly_max['TMAX'], yearly_max['DATE'])
+    elif param == 'TMIN':
+        return 'Yearly Low: {}, {}'.format(yearly_min['TMIN'], yearly_min['DATE'])
+
+@app.callback(Output('mean-max/min', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_c(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    if param == 'TMAX':
+        return 'Mean Max Temp: {:,.1f}'.format(filtered_year['TMAX'].mean())
+    elif param == 'TMIN':
+        return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
+@app.callback(Output('days-above-100/below-0', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_d(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_hundred = (filtered_year['TMAX'] >= 100).sum()
+    da_below_zero = (filtered_year['TMIN'] < 0).sum()
+    if param == 'TMAX':
+        return '100 Degree Days: {} - Normal: 8'.format(da_hundred)
+    elif param == 'TMIN':
+        return 'Days Below 0: {} - Normal: 6.7'.format(da_below_zero)
+
+@app.callback(Output('days-above-90/high-below-0', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_e(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_ninety = (filtered_year['TMAX'] >= 90).sum()
+    da_high_below_32 = (filtered_year['TMAX'] < 32).sum()
+    if param == 'TMAX':
+        return '90 Degree Days: {} - Normal: 30.6'.format(da_ninety)
+    elif param == 'TMIN':
+        return 'Days High Below 32: {} - Normal: 21'.format(da_high_below_32)
+
+@app.callback(Output('days-above-80/below-32', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_f(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_80 = (filtered_year['TMAX'] >= 80).sum()
+    da_below_32 = (filtered_year['TMIN'] < 32).sum()
+    if param == 'TMAX':
+        return '80 Degree Days: {} - Normal: 95.5'.format(da_80)
+    elif param == 'TMIN':
+        return 'Days Below 0: {} - Normal: 156.5'.format(da_below_32)
+
+@app.callback(Output('days-above-normal/below-normal', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_g(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    dmaxan = 0
+    dminan = 0
+    i = 0
+    df_norms_max.loc[i]['DLY-TMAX-NORMAL'] 
+    if param == 'TMAX':
+        while i < filtered_year["TMAX"].count():
+            if filtered_year.iloc[i]['TMAX'] > df_norms_max.iloc[i]['DLY-TMAX-NORMAL']:
+                dmaxan = dmaxan + 1
+                i = i + 1
+            else: i = i + 1    
+        return 'Days High Above Normal: {}/{}'.format(dmaxan, i)
+    elif param == 'TMIN':
+        while i < filtered_year["TMIN"].count():
+            if filtered_year.iloc[i]['TMIN'] < df_norms_min.iloc[i]['DLY-TMIN-NORMAL']:
+                dminan = dminan + 1
+                i = i + 1
+            else: i = i + 1
+        return 'Days Low Below Normal: {}/{}'.format(dminan, i)
 
 
 app.layout = html.Div(body)
