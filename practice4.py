@@ -62,13 +62,73 @@ df_da_cd = (df5[-(current_year_indexer):]).mean()
 df10.loc['2010'] = df_da_cd
 df10 = df10.round(1)
 df10 = df10.reset_index()
-print(df10)
+
 # year list for dropdown selector
 year = []
 for YEAR in df.index.year.unique():
     year.append({'label':(YEAR), 'value':YEAR})
 
 body = dbc.Container([
+    dbc.Row([
+        dbc.Col(
+            html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':50,'font-color':'Gray'})
+        )
+    ],
+    justify='center'
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.H2('1948-PRESENT', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.Div(
+                html.H3('DAILY TEMPERATURES'),
+            style={'text-align':'center'}
+            ),
+        )
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                dcc.Graph(id='graph1', style={'height':700}),
+            ]),
+            width={'size':12}
+        ),
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.H2('SELECT YEAR', style={'text-align':'center'})
+        ),
+        dbc.Col(
+            html.H4('Data Updated', style={'text-align':'center'})
+        ),
+        dbc.Col(
+            html.H2('SELECT PARAMETER', style={'text-align':'center'})
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            dcc.Dropdown(id='year-picker', options=year
+            ),
+            width = {'size': 2}),
+        dbc.Col(
+            html.H4('{}-{}-{}'.format(df.index[-1].year,df.index[-1].month,df.index[-1].day), style={'text-align': 'center'}),
+            width = {'size': 2}),
+        dbc.Col(
+            dcc.RadioItems(id='param', options=[
+                {'label':'MAX TEMP','value':'TMAX'},
+                {'label':'MIN TEMP','value':'TMIN'}
+                ]),
+            width = {'size': 2}),    
+    ],
+    justify='around',
+    ),
     dbc.Row([
         dbc.Col([
             dash_table.DataTable(
@@ -82,6 +142,42 @@ body = dbc.Container([
     ]),
 ])
 
+@app.callback(Output('graph1', 'figure'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_figure(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    traces = []
+    year_param_max = filtered_year['' + param + '']
+    year_param_min = filtered_year[''+ param + '']
+    print(param)
+    if param == 'TMAX':
+        traces.append(go.Scatter(
+        y = year_param_max,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_max['DLY-TMAX-NORMAL'],
+            name = "Normal Max T"
+        ))
+    elif param == 'TMIN':  
+        traces.append(go.Scatter(
+        y = year_param_min,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_min['DLY-TMIN-NORMAL'],
+            name = "Normal Min T"
+        ))
+    return {
+        'data': traces,
+        'layout': go.Layout(
+            xaxis = {'title': 'DAY'},
+            yaxis = {'title': 'TMAX'},
+            hovermode = 'closest',
+            title = ''
+        )
+    }
 
 @app.callback(Output('stats', 'children'),
               [Input('year-picker', 'value')])
