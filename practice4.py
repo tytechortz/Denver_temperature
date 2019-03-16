@@ -13,7 +13,7 @@ from pandas import Series
 from scipy import stats
 from scipy.stats import norm 
 from numpy import arange,array,ones 
-import dash_table
+import dash_table 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config['suppress_callback_exceptions']=True
@@ -192,6 +192,37 @@ body = dbc.Container([
         ),
     ]),
     dbc.Row([
+        dbc.Col(
+            html.H2('STUFF', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            dcc.RadioItems(id='selection', options=[
+                {'label':'Decade Rankings','value':'decades'},
+                {'label':'MIN TEMP','value':'TMIN'}
+                ]),
+            width = {'size': 4}),    
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            dash_table.DataTable(
+                id='temptable',
+                columns=[{
+                    'name': '{}'.format(i),
+                    'id': '{}'.format(i)
+                    } for i in df10.columns],
+                data=[{}],
+                # editable=True
+            ),
+        ),
+        dbc.Col(
+            dcc.Graph(id='histogram'),
+        ),
+    ]),
+    dbc.Row([
         dbc.Col([
             dash_table.DataTable(
                 data=df10.to_dict('rows'),
@@ -327,6 +358,24 @@ def update_layout_g(selected_year, param):
                 i = i + 1
             else: i = i + 1
         return 'Days Low Below Normal: {}/{}'.format(dminan, i)
+
+@app.callback(Output('temptable', 'data'),
+             [Input('selection', 'value')])
+def create_table(selection):
+    print(df10.to_dict('records'))
+    return df10.to_dict('records')
+    
+    
+# @app.callback(Output('table', 'columns'),
+#              [Input('selection', 'value')])
+# def update_table_a(selection):
+#     print(selection)
+#     return {
+#         'columns': [{'id': i, 'name': i} for i in df10.columns],
+#     }
+            
+            
+   
 
 
 app.layout = html.Div(body)
