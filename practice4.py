@@ -33,10 +33,11 @@ df_norms_min = pd.read_csv('./daily_normal_min.csv')
 df_old = pd.read_csv('./stapleton.csv').round(1)
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard').round(1)
 df = pd.concat([df_old, df_new], ignore_index=True)
+# df_100 = df
 
-df['date'] = pd.to_datetime(df['DATE'])
-df = df.set_index('date')
-
+df['DATE'] = pd.to_datetime(df['DATE'])
+# df_100['DATE'] = pd.to_datetime(df["DATE"].year)
+df = df.set_index('DATE')
 df_ya_max = df.resample('Y').mean()
 
 df.loc[:,'TAVG'] = ((df.TMAX + df.TMIN) / 2)
@@ -494,10 +495,10 @@ def update_layout_g(selected_year, param):
 def update_table_a(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
-    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
+    df_100 = pd.DataFrame({'DATE':df_100_count.index.year, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
-    df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
+    df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         return [{'name': i, 'id': i} for i in df10.columns]
     elif selection == '100-degrees':
@@ -510,10 +511,10 @@ def update_table_a(selection):
 def create_table_b(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
-    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
+    df_100 = pd.DataFrame({'DATE':df_100_count.index.year, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
-    df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
+    df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         return df10.to_dict('records')
     elif selection == '100-degrees':
@@ -526,14 +527,14 @@ def create_table_b(selection):
 def update_figure_a(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
-    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
+    df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
-    df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
+    df_90 = pd.DataFrame({'DATE':df_90_count.index, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         data = [
             go.Bar(
-                x=df10['date'],
+                x=df10['DATE'],
                 y=df10['TAVG']
             )
         ]
@@ -546,7 +547,7 @@ def update_figure_a(selection):
     elif selection == '100-degrees':
         data = [
             go.Bar(
-                x=df_100['date'],
+                x=df_100['DATE'],
                 y=df_100['100 Degree Days']
             )
         ]
@@ -559,7 +560,7 @@ def update_figure_a(selection):
     elif selection == '90-degrees':
         data = [
             go.Bar(
-                x=df_90['date'],
+                x=df_90['DATE'],
                 y=df_90['90 Degree Days']
             )
         ]
