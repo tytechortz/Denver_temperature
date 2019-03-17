@@ -73,6 +73,37 @@ cy_min = df_new.loc[df_new['TMIN'].idxmin()]
 cy_max_mean = df_new['TMAX'].mean()
 cy_min_mean = df_new['TMIN'].mean()
 
+# filters all MAXT data for 5 year moving average
+allmax_rolling = df['TMAX'].rolling(window=1825)
+allmax_rolling_mean = allmax_rolling.mean()
+# filters all MINT data fr 5 year moving average
+allmin_rolling = df['TMIN'].rolling(window=1825)
+allmin_rolling_mean = allmin_rolling.mean()
+
+startyr = 1950
+presentyr = datetime.now().year
+year_count = presentyr-startyr
+
+# linear fit for Avg Max Temps
+def annual_min_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
+    return (slope*xi+intercept)
+
+def annual_max_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
+
+def all_max_temp_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
+
+def all_min_temp_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
+    return (slope*xi+intercept)
 
 # year list for dropdown selector
 year = []
@@ -105,9 +136,9 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                dcc.Graph(id='graph1', style={'height':700}),
+                dcc.Graph(id='graph1', style={'height':600}),
             ]),
-            width={'size':12}
+            width={'size':10}
         ),
     ],
     justify='around',
@@ -207,10 +238,7 @@ body = dbc.Container([
                 {'label':'100 Degree Days','value':'100-degrees'},
                 {'label':'90 Degree Days','value':'90-degrees'},
                 ]),
-            width = {'size': 4}),
-        dbc.Col(
-            html.H4('STUFF', style={'text-align':'center'})
-        )    
+            width = {'size': 4}), 
     ],
     justify='around',
     ),
@@ -249,6 +277,92 @@ body = dbc.Container([
             html.H3('stuff')
         ])
     ]),
+    dbc.Row([
+        dbc.Col(
+            html.H2('STUFF', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row(
+        [
+           dbc.Col(
+                html.Div([
+                    dcc.Graph(id='all-max-temps',  
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df.index, 
+                                    'y' : allmax_rolling_mean,
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : all_max_temp_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 700     
+                            ), 
+                        }
+                    ),
+                ]),
+                width = {'size': 10, 'offset':1},
+            ), 
+        ],
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H3('Max Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                ),
+        ],
+        align = 'around'
+    ),
+    dbc.Row(
+        [
+           dbc.Col(
+                html.Div([
+                    dcc.Graph(id='all-min-temps',  
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df.index, 
+                                    'y' : allmin_rolling_mean,
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : all_min_temp_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 700     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size': 10, 'offset':1},
+            ), 
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H3('Min Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                ),
+        ],
+        align = 'around'
+    ),
 ])
 
 @app.callback(Output('graph1', 'figure'),
@@ -412,7 +526,6 @@ def update_figure_a(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
-    print(df_100)
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
@@ -429,7 +542,6 @@ def update_figure_a(selection):
         )
         return {'data': data, 'layout': layout} 
     elif selection == '100-degrees':
-        print(selection)
         data = [
             go.Bar(
                 x=df_100['date'],
