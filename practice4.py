@@ -121,7 +121,7 @@ body = dbc.Container([
     ),
     dbc.Row([
         dbc.Col(
-            html.H2('1948-PRESENT', style={'text-align':'center'})
+            html.H2('1950-PRESENT', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
@@ -526,7 +526,6 @@ def create_table_b(selection):
              [Input('selection', 'value')])
 def update_figure_a(selection):
     df_100 = df[df['TMAX']>=100]
-    print(df_100)
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
     # trend line
@@ -534,10 +533,15 @@ def update_figure_a(selection):
         xi = arange(0,year_count-4)
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_100['100 Degree Days'])
         return (slope*xi+intercept)
-
+    # 90 Degree Days
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'DATE':df_90_count.index, '90 Degree Days':df_90_count.values})
+    # trend line
+    def ninety_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_90['90 Degree Days'])
+        return (slope*xi+intercept)
     if selection == 'decades':
         data = [
             go.Bar(
@@ -555,11 +559,13 @@ def update_figure_a(selection):
         data = [
             go.Bar(
                 x=df_100['DATE'],
-                y=df_100['100 Degree Days']
+                y=df_100['100 Degree Days'],
+                name='100 F Days'
             ),
             go.Scatter(
                 x=df_100['DATE'],
                 y=hundred_fit(),
+                name='trend'
             )
         ]
         layout = go.Layout(
@@ -572,7 +578,13 @@ def update_figure_a(selection):
         data = [
             go.Bar(
                 x=df_90['DATE'],
-                y=df_90['90 Degree Days']
+                y=df_90['90 Degree Days'],
+                name='90 F Days'
+            ),
+            go.Scatter(
+                x=df_90['DATE'],
+                y=ninety_fit(),
+                name='trend'
             )
         ]
         layout = go.Layout(
