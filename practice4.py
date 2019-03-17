@@ -59,6 +59,9 @@ current_year_decade = current_year%10
 current_year_indexer = current_year_decade + 1
 # current year decade avg current decade
 df_da_cd = (df5[-(current_year_indexer):]).mean()
+# current year 90- degree days
+cy90 = df_new[df_new['TMAX']>=90]
+
 # add current decade to decade list
 df10.loc['2010'] = df_da_cd
 df10 = df10.round(1)
@@ -213,7 +216,13 @@ body = dbc.Container([
                 id='temptable',
                 columns=[{}],
                 data=[{}],
-                sorting=True
+                sorting=True,
+                style_cell={'textAlign': 'center'},
+                style_as_list_view=True,
+                style_table={
+                    'maxHeight': '450',
+                    'overflowY': 'scroll'
+                },
             ),
         ),
         dbc.Col(
@@ -375,6 +384,7 @@ def create_table_b(selection):
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
+    
     print(df_90)
     if selection == 'decades':
         return df10.to_dict('records')
