@@ -229,7 +229,7 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('STUFF', style={'text-align':'center'})
+            html.H2('Select Data', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
@@ -526,8 +526,15 @@ def create_table_b(selection):
              [Input('selection', 'value')])
 def update_figure_a(selection):
     df_100 = df[df['TMAX']>=100]
+    print(df_100)
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
+    # trend line
+    def hundred_fit():
+        xi = arange(0,year_count-4)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_100['100 Degree Days'])
+        return (slope*xi+intercept)
+
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'DATE':df_90_count.index, '90 Degree Days':df_90_count.values})
@@ -549,6 +556,10 @@ def update_figure_a(selection):
             go.Bar(
                 x=df_100['DATE'],
                 y=df_100['100 Degree Days']
+            ),
+            go.Scatter(
+                x=df_100['DATE'],
+                y=hundred_fit(),
             )
         ]
         layout = go.Layout(
