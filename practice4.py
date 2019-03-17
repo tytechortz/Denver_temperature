@@ -204,9 +204,13 @@ body = dbc.Container([
         dbc.Col(
             dcc.RadioItems(id='selection', options=[
                 {'label':'Decade Rankings','value':'decades'},
-                {'label':'90 Degree Days','value':'90-degrees'}
+                {'label':'100 Degree Days','value':'100-degrees'},
+                {'label':'90 Degree Days','value':'90-degrees'},
                 ]),
-            width = {'size': 4}),    
+            width = {'size': 4}),
+        dbc.Col(
+            html.H4('STUFF', style={'text-align':'center'})
+        )    
     ],
     justify='around',
     ),
@@ -255,7 +259,6 @@ def update_figure(selected_year, param):
     traces = []
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year[''+ param + '']
-    print(param)
     if param == 'TMAX':
         traces.append(go.Scatter(
         y = year_param_max,
@@ -374,33 +377,46 @@ def update_layout_g(selected_year, param):
 @app.callback(Output('temptable', 'columns'),
              [Input('selection', 'value')])
 def update_table_a(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         return [{'name': i, 'id': i} for i in df10.columns]
+    elif selection == '100-degrees':
+        return [{'name': i, 'id': i} for i in df_100.columns]
     elif selection == '90-degrees':
         return [{'name': i, 'id': i} for i in df_90.columns]
         
 @app.callback(Output('temptable', 'data'),
              [Input('selection', 'value')])
 def create_table_b(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         return df10.to_dict('records')
+    elif selection == '100-degrees':
+        return df_100.to_dict('records')
     elif selection == '90-degrees':
         return df_90.to_dict('records')
 
 @app.callback(Output('bar', 'figure'),
              [Input('selection', 'value')])
 def update_figure_a(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'date':df_100_count.index, '100 Degree Days':df_100_count.values})
+    print(df_100)
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
-        print(selection)
         data = [
             go.Bar(
                 x=df10['date'],
@@ -412,6 +428,19 @@ def update_figure_a(selection):
             yaxis={'title': 'TAVG'}
         )
         return {'data': data, 'layout': layout} 
+    elif selection == '100-degrees':
+        print(selection)
+        data = [
+            go.Bar(
+                x=df_100['date'],
+                y=df_100['100 Degree Days']
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': '100 Degree Days'}
+        ) 
+        return {'data': data, 'layout': layout}
     elif selection == '90-degrees':
         data = [
             go.Bar(
@@ -421,32 +450,11 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': '(90 Degree Days'}
+            yaxis={'title': '90 Degree Days'}
         ) 
         return {'data': data, 'layout': layout}
 
 
-
-
-
-
-
-
-# @app.callback(Output('temptable', 'columns'),
-#              [Input('selection', 'value')])
-# def update_table_c(selection):
-#     df_90 = df[df['TMAX']>=90]
-#     print(df_90.columns.values[0])
-#     # df_90_count = df_90.resample('Y').count()['TMAX']
-#     if selection == '90-degrees':
-#         return [{'name': i, 'id': i} for i in df_90.columns] 
-
-# @app.callback(Output('temptable', 'data'),
-#              [Input('selection', 'value')])
-# def create_table_d(selection):
-#     df_90 = df[df['TMAX']>=90]
-#     if selection == '90-degrees':
-#         return df_90.to_dict('records')
 
 app.layout = html.Div(body)
 
