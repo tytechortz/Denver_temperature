@@ -226,9 +226,14 @@ body = dbc.Container([
             ),
         ),
         dbc.Col(
-            dcc.Graph(id='histogram'),
+            dcc.Graph(id='bar'),
         ),
     ]),
+    dbc.Row([
+        dbc.Col(
+            html.H2('STUFF', style={'text-align':'center'})
+        )]
+    ),
     dbc.Row([
         dbc.Col([
             dash_table.DataTable(
@@ -380,16 +385,46 @@ def update_table_a(selection):
 @app.callback(Output('temptable', 'data'),
              [Input('selection', 'value')])
 def create_table_b(selection):
-    print(selection)
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
-    
-    print(df_90)
     if selection == 'decades':
         return df10.to_dict('records')
     elif selection == '90-degrees':
         return df_90.to_dict('records')
+
+@app.callback(Output('bar', 'figure'),
+             [Input('selection', 'value')])
+def update_figure_a(selection):
+    df_90 = df[df['TMAX']>=90]
+    df_90_count = df_90.resample('Y').count()['TMAX']
+    df_90 = pd.DataFrame({'date':df_90_count.index, '90 Degree Days':df_90_count.values})
+    if selection == 'decades':
+        print(selection)
+        data = [
+            go.Bar(
+                x=df10['date'],
+                y=df10['TAVG']
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TAVG'}
+        )
+        return {'data': data, 'layout': layout} 
+    elif selection == '90-degrees':
+        data = [
+            go.Bar(
+                x=df_90['date'],
+                y=df_90['90 Degree Days']
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': '(90 Degree Days'}
+        ) 
+        return {'data': data, 'layout': layout}
+
 
 
 
