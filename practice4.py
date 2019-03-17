@@ -428,6 +428,7 @@ def update_layout_c(selected_year, param):
         return 'Mean Max Temp: {:,.1f}'.format(filtered_year['TMAX'].mean())
     elif param == 'TMIN':
         return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
+
 @app.callback(Output('days-above-100/below-0', 'children'),
               [Input('year-picker', 'value'),
               Input('param', 'value')])
@@ -538,7 +539,8 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': 'TAVG'}
+            yaxis={'title': 'TAVG'},
+            title='Avg Temp by Decade'
         )
         return {'data': data, 'layout': layout} 
     elif selection == '100-degrees':
@@ -550,7 +552,8 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': '100 Degree Days'}
+            yaxis={'title': '100 Degree Days'},
+            title='100 Degree Days Per Year'
         ) 
         return {'data': data, 'layout': layout}
     elif selection == '90-degrees':
@@ -562,7 +565,8 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': '90 Degree Days'}
+            yaxis={'title': '90 Degree Days'},
+            title='90 Degree Days Per Year'
         ) 
         return {'data': data, 'layout': layout}
 
