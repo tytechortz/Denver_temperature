@@ -91,7 +91,7 @@ drl = annual_max_mean_rankings.size
 acr = pd.DataFrame({'DATE':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
 
 print(acr)
-print(type(acr))
+
 
 
 startyr = 1950
@@ -292,7 +292,7 @@ body = dbc.Container([
     ),
     dbc.Row([
         dbc.Col([
-            generate_table(df)
+            generate_table(acr)
         ]),
         dbc.Col([
             html.H3('stuff')
