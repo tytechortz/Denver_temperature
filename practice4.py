@@ -90,7 +90,7 @@ annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
 acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
 acr = acr.round(1)
-print(acr)
+
 
 
 
@@ -120,7 +120,7 @@ def all_min_temp_fit():
     return (slope*xi+intercept)
 
 def generate_table(acr, max_rows=10):
-    return html.Table(
+    return html.Table (
         [html.Tr([html.Th(col) for col in acr.columns])] +
         [html.Tr([
             html.Td(acr.iloc[i][col]) for col in acr.columns
@@ -287,12 +287,30 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('STUFF', style={'text-align':'center'})
+            html.H2('YEARLY RANKINGS', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
+        dbc.Col(
+            html.H4('Select Parameters', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            dcc.RadioItems(id='rankings', options=[
+                {'label':'Avg Daily Temp','value':'ADT'},
+                {'label':'Max Daily Temp','value':'MaxDT'},
+                {'label':'Min Daily Temp','value':'MinDT'},
+                ]),
+            width = {'size': 12}), 
+    ],
+    justify='around',
+    ),
+    dbc.Row([
         dbc.Col([
-            generate_table(acr)
+            html.Div([
+                generate_table(acr)
+            ],id = 'table1')
         ]),
         dbc.Col([
             html.H3('stuff')

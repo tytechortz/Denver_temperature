@@ -12,8 +12,15 @@ body {
     min-width: 1366px;
 }
 
-table {
+#table1 {
     table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid blue;
+  }
+
+table {
+    /* table-layout: fixed; */
     width: 100%;
     border-collapse: collapse;
     border: 3px solid blue;
