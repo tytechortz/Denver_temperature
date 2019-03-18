@@ -412,13 +412,14 @@ def update_layout_a(selected_year):
               Input('param', 'value')])
 def update_layout_b(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
-    yearly_max = filtered_year.loc[filtered_year['' + param + ''].idxmax()]
-    yearly_min = filtered_year.loc[filtered_year['' + param + ''].idxmin()]
+    print(filtered_year)
+    yearly_max = filtered_year.loc[filtered_year['TMAX'].idxmax()]
+    yearly_min = filtered_year.loc[filtered_year['TMIN'].idxmin()]
     print(yearly_max)
     if param == 'TMAX':
-        return 'Yearly High: {}, {}'.format(yearly_max['TMAX'], yearly_max['DATE'])
+        return 'Yearly High: {}'.format(yearly_max['TMAX'])
     elif param == 'TMIN':
-        return 'Yearly Low: {}, {}'.format(yearly_min['TMIN'], yearly_min['DATE'])
+        return 'Yearly Low: {}'.format(yearly_min['TMIN'])
 
 @app.callback(Output('mean-max/min', 'children'),
               [Input('year-picker', 'value'),
@@ -438,7 +439,7 @@ def update_layout_d(selected_year, param):
     da_hundred = (filtered_year['TMAX'] >= 100).sum()
     da_below_zero = (filtered_year['TMIN'] < 0).sum()
     if param == 'TMAX':
-        return '100 Degree Days: {} - Normal: 8'.format(da_hundred)
+        return '100 Degree Days: {} - Normal: 1'.format(da_hundred)
     elif param == 'TMIN':
         return 'Days Below 0: {} - Normal: 6.7'.format(da_below_zero)
 
@@ -551,7 +552,7 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': 'TAVG'},
+            yaxis={'title': 'TAVG','range':[48, 52]},
             title='Avg Temp by Decade'
         )
         return {'data': data, 'layout': layout} 
