@@ -86,10 +86,10 @@ allmin_rolling_mean = allmin_rolling.mean()
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
-annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=True)
+annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
-acr = pd.DataFrame({'DATE':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
-
+acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
+acr = acr.round(1)
 print(acr)
 
 
