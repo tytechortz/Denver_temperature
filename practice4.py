@@ -60,6 +60,8 @@ current_year_decade = current_year%10
 current_year_indexer = current_year_decade + 1
 # current year decade avg current decade
 df_da_cd = (df5[-(current_year_indexer):]).mean()
+df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
+df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
 # current year 90- degree days
 cy90 = df_new[df_new['TMAX']>=90]
 
@@ -80,6 +82,17 @@ allmax_rolling_mean = allmax_rolling.mean()
 # filters all MINT data fr 5 year moving average
 allmin_rolling = df['TMIN'].rolling(window=1825)
 allmin_rolling_mean = allmin_rolling.mean()
+
+# sorts annual mean temps
+annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
+annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
+annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=True)
+drl = annual_max_mean_rankings.size
+acr = pd.DataFrame({'DATE':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
+
+print(acr)
+print(type(acr))
+
 
 startyr = 1950
 presentyr = datetime.now().year
@@ -105,6 +118,16 @@ def all_min_temp_fit():
     xi = arange(0,year_count)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
     return (slope*xi+intercept)
+
+def generate_table(acr, max_rows=10):
+    return html.Table(
+        [html.Tr([html.Th(col) for col in acr.columns])] +
+        [html.Tr([
+            html.Td(acr.iloc[i][col]) for col in acr.columns
+            ]) for i in range(min(len(acr), max_rows))]
+    )
+
+
 
 # year list for dropdown selector
 year = []
@@ -269,10 +292,7 @@ body = dbc.Container([
     ),
     dbc.Row([
         dbc.Col([
-            dash_table.DataTable(
-                data=df10.to_dict('rows'),
-                columns=[{'id': c, 'name': c} for c in df10.columns]
-            ),
+            generate_table(df)
         ]),
         dbc.Col([
             html.H3('stuff')
@@ -499,6 +519,7 @@ def update_table_a(selection):
     df_100 = pd.DataFrame({'DATE':df_100_count.index.year, '100 Degree Days':df_100_count.values})
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
+    # convert series to dataframe
     df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
     if selection == 'decades':
         return [{'name': i, 'id': i} for i in df10.columns]
@@ -552,7 +573,7 @@ def update_figure_a(selection):
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
-            yaxis={'title': 'TAVG','range':[48, 52]},
+            yaxis={'title': 'TAVG','range':[49, 52]},
             title='Avg Temp by Decade'
         )
         return {'data': data, 'layout': layout} 
