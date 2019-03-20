@@ -90,6 +90,10 @@ annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
 acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
 acr = acr.round(1)
+print(acr)
+maxdt = pd.DataFrame({'YEAR':annual_max_mean_rankings.index.year, 'MAX TEMP':annual_max_mean_rankings.values})
+maxdt = maxdt.round(1)
+print(maxdt)
 
 
 
@@ -125,6 +129,13 @@ def generate_table(acr, max_rows=10):
         [html.Tr([
             html.Td(acr.iloc[i][col]) for col in acr.columns
             ]) for i in range(min(len(acr), max_rows))]
+    )
+def generate_table_maxdt(maxdt, max_rows=10):
+    return html.Table (
+        [html.Tr([html.Th(col) for col in maxdt.columns])] +
+        [html.Tr([
+            html.Td(maxdt.iloc[i][col]) for col in maxdt.columns
+            ]) for i in range(min(len(maxdt), max_rows))]
     )
 
 # def generate_table():
@@ -309,7 +320,7 @@ body = dbc.Container([
     ),
     dbc.Row([
         dbc.Col(
-            html.Div(id='table-container')
+            html.Div(id='table-container'),
         ),
         dbc.Col(
             dcc.Graph(id='heat'),
@@ -632,12 +643,14 @@ def update_figure_a(selection):
         ) 
         return {'data': data, 'layout': layout}
 
-@app.callback(Output('table-container', 'children'),
+@app.callback(Output('table-container', 'children'),  
               [Input('rankings', 'value')])
 def update_rankings(selected_param):
     print(selected_param)
     if selected_param == 'acr':
         return generate_table(acr)
+    elif selected_param == 'MaxDT':
+        return generate_table_maxdt(maxdt)
     
     
         
