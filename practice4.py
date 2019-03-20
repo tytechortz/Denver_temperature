@@ -86,6 +86,7 @@ allmin_rolling_mean = allmin_rolling.mean()
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=False)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=False)
+
 annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
 acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
@@ -94,6 +95,9 @@ acr = acr.round(1)
 maxdt = pd.DataFrame({'YEAR':annual_max_mean_rankings.index.year, 'MAX TEMP':annual_max_mean_rankings.values})
 maxdt = maxdt.round(1)
 
+mindt = pd.DataFrame({'YEAR':annual_min_mean_rankings.index.year, 'MIN TEMP':annual_min_mean_rankings.values})
+mindt = mindt.round(1)
+print(mindt)
 
 
 
@@ -138,8 +142,13 @@ def generate_table_maxdt(maxdt, max_rows=10):
             ]) for i in range(min(len(maxdt), max_rows))]
     )
 
-# def generate_table():
-#     pass
+def generate_table_mindt(mindt, max_rows=10):
+    return html.Table (
+        [html.Tr([html.Th(col) for col in mindt.columns])] +
+        [html.Tr([
+            html.Td(mindt.iloc[i][col]) for col in mindt.columns
+            ]) for i in range(min(len(mindt), max_rows))]
+    )
 
 # year list for dropdown selector
 year = []
@@ -311,8 +320,8 @@ body = dbc.Container([
         dbc.Col(
             dcc.RadioItems(id='rankings', options=[
                 {'label':'Avg Daily Temp','value':'acr'},
-                {'label':'Max Daily Temp','value':'MaxDT'},
-                {'label':'Min Daily Temp','value':'MinDT'},
+                {'label':'Max Daily Temp','value':'max_dt'},
+                {'label':'Min Daily Temp','value':'min_dt'},
                 ]),
             width = {'size': 12}), 
     ],
@@ -649,8 +658,10 @@ def update_rankings(selected_param):
     print(selected_param)
     if selected_param == 'acr':
         return generate_table(acr)
-    elif selected_param == 'MaxDT':
+    elif selected_param == 'max_dt':
         return generate_table_maxdt(maxdt)
+    elif selected_param == 'min_dt':
+        return generate_table_mindt(mindt)
     
     
         
