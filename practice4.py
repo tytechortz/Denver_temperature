@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import pandas as pd
 import sqlite3
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import time
 # import datetime
 from datetime import datetime
@@ -127,7 +127,8 @@ def generate_table(acr, max_rows=10):
             ]) for i in range(min(len(acr), max_rows))]
     )
 
-
+# def generate_table():
+#     pass
 
 # year list for dropdown selector
 year = []
@@ -298,7 +299,7 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             dcc.RadioItems(id='rankings', options=[
-                {'label':'Avg Daily Temp','value':'ADT'},
+                {'label':'Avg Daily Temp','value':'acr'},
                 {'label':'Max Daily Temp','value':'MaxDT'},
                 {'label':'Min Daily Temp','value':'MinDT'},
                 ]),
@@ -307,18 +308,16 @@ body = dbc.Container([
     justify='around',
     ),
     dbc.Row([
-        dbc.Col([
-            html.Div([
-                generate_table(acr)
-            ],id = 'table1')
-        ]),
-        dbc.Col([
-            html.H3('stuff')
-        ])
+        dbc.Col(
+            html.Div(id='table-container')
+        ),
+        dbc.Col(
+            dcc.Graph(id='heat'),
+        ),
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('STUFF', style={'text-align':'center'})
+            html.H2('1950-Present, Complete Record', style={'text-align':'center'})
         )]
     ),
     dbc.Row(
@@ -402,6 +401,7 @@ body = dbc.Container([
         ],
         align = 'around'
     ),
+    html.H6(id='junk')
 ])
 
 @app.callback(Output('graph1', 'figure'),
@@ -411,7 +411,7 @@ def update_figure(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     traces = []
     year_param_max = filtered_year['' + param + '']
-    year_param_min = filtered_year[''+ param + '']
+    year_param_min = filtered_year['' + param + '']
     if param == 'TMAX':
         traces.append(go.Scatter(
         y = year_param_max,
@@ -434,7 +434,7 @@ def update_figure(selected_year, param):
         'data': traces,
         'layout': go.Layout(
             xaxis = {'title': 'DAY'},
-            yaxis = {'title': 'TMAX'},
+            yaxis = {'title': 'TEMP'},
             hovermode = 'closest',
             title = ''
         )
@@ -450,10 +450,8 @@ def update_layout_a(selected_year):
               Input('param', 'value')])
 def update_layout_b(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
-    print(filtered_year)
     yearly_max = filtered_year.loc[filtered_year['TMAX'].idxmax()]
     yearly_min = filtered_year.loc[filtered_year['TMIN'].idxmin()]
-    print(yearly_max)
     if param == 'TMAX':
         return 'Yearly High: {}'.format(yearly_max['TMAX'])
     elif param == 'TMIN':
@@ -503,7 +501,7 @@ def update_layout_f(selected_year, param):
     if param == 'TMAX':
         return '80 Degree Days: {} - Normal: 95.5'.format(da_80)
     elif param == 'TMIN':
-        return 'Days Below 0: {} - Normal: 156.5'.format(da_below_32)
+        return 'Days Below 32: {} - Normal: 156.5'.format(da_below_32)
 
 @app.callback(Output('days-above-normal/below-normal', 'children'),
               [Input('year-picker', 'value'),
@@ -633,6 +631,16 @@ def update_figure_a(selection):
             title='90 Degree Days Per Year'
         ) 
         return {'data': data, 'layout': layout}
+
+@app.callback(Output('table-container', 'children'),
+              [Input('rankings', 'value')])
+def update_rankings(selected_param):
+    print(selected_param)
+    if selected_param == 'acr':
+        return generate_table(acr)
+    
+    
+        
 
 
 
