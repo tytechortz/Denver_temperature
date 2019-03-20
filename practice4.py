@@ -25,15 +25,14 @@ today = time.strftime("%Y-%m-%d")
 # daily normal temperatures
 df_norms_max = pd.read_csv('./daily_normal_max.csv')
 df_norms_min = pd.read_csv('./daily_normal_min.csv')
+df_norms_max_ly = pd.read_csv('./daily_normal_max_ly.csv')
+df_norms_min_ly = pd.read_csv('./daily_normal_min_ly.csv')
 
-# daily normal temperatures
-df_norms_max = pd.read_csv('./daily_normal_max.csv')
-df_norms_min = pd.read_csv('./daily_normal_min.csv')
 
 df_old = pd.read_csv('./stapleton.csv').round(1)
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard').round(1)
 df = pd.concat([df_old, df_new], ignore_index=True)
-# df_100 = df
+
 
 df['DATE'] = pd.to_datetime(df['DATE'])
 # df_100['DATE'] = pd.to_datetime(df["DATE"].year)
@@ -97,9 +96,6 @@ maxdt = maxdt.round(1)
 
 mindt = pd.DataFrame({'YEAR':annual_min_mean_rankings.index.year, 'MIN TEMP':annual_min_mean_rankings.values})
 mindt = mindt.round(1)
-print(mindt)
-
-
 
 
 startyr = 1950
@@ -181,9 +177,15 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                dcc.Graph(id='graph1', style={'height':600}),
+                dcc.Graph(id='graph1'),
             ]),
-            width={'size':10}
+            width={'size':6}
+        ),
+        dbc.Col(
+            html.Div([
+                dcc.Graph(id='graph2'),
+            ]),
+            width={'size':6}
         ),
     ],
     justify='around',
@@ -432,6 +434,8 @@ def update_figure(selected_year, param):
     traces = []
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year['' + param + '']
+    print(df_norms_max)
+
     if param == 'TMAX':
         traces.append(go.Scatter(
         y = year_param_max,
@@ -456,15 +460,27 @@ def update_figure(selected_year, param):
             xaxis = {'title': 'DAY'},
             yaxis = {'title': 'TEMP'},
             hovermode = 'closest',
-            title = ''
+            title = 'Daily Temps'
         )
     }
+
+@app.callback(Output('graph2', 'figure'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_figure_a(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    year_param_max = filtered_year['' + param + '']
+    year_param_min = filtered_year['' + param + '']
+    df_year_param_max_ly = pd.DataFrame({'DATE':year_param_max.index, 'TMAX':year_param_max.values, 'NORM MAX':df_norms_max_ly['DLY-TMAX-NORMAL']})
+    df_year_param_min_ly = pd.DataFrame({'DATE':year_param_min.index, 'TMIN':year_param_min.values, 'NORM MIN':df_norms_min_ly['DLY-TMIN-NORMAL']})
+    df_year_param_max = pd.DataFrame({'DATE':year_param_max.index, 'TMAX':year_param_max.values, 'NORM MAX':df_norms_max['DLY-TMAX-NORMAL']})
+    df_year_param_min = pd.DataFrame({'DATE':year_param_min.index, 'TMIN':year_param_min.values, 'NORM MIN':df_norms_min['DLY-TMIN-NORMAL']})
 
 @app.callback(Output('stats', 'children'),
               [Input('year-picker', 'value')])
 def update_layout_a(selected_year):
     return 'Stats for {}'.format(selected_year)
-
+    
 @app.callback(Output('yearly-high/low', 'children'),
               [Input('year-picker', 'value'),
               Input('param', 'value')])
