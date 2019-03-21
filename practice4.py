@@ -509,6 +509,11 @@ def update_figure_a(selected_year, param):
     normal_max_diff = year_param_max - filtered_year['MXNRM']
     normal_min_diff = year_param_min - filtered_year['MNNRM']
     normal_avg_diff = year_param_avg - filtered_year['AVGNRM']
+    colorscale_max = ((((normal_max_diff.max() - normal_max_diff.min()) - normal_max_diff.max()) / (normal_max_diff.max() - normal_max_diff.min())))
+    colorscale_min = ((((normal_min_diff.max() - normal_min_diff.min()) - normal_min_diff.max()) / (normal_min_diff.max() - normal_min_diff.min())))
+    colorscale_avg = ((((normal_avg_diff.max() - normal_avg_diff.min()) - normal_avg_diff.max()) / (normal_avg_diff.max() - normal_avg_diff.min())))
+
+
 
 
     if param == 'TMAX':
@@ -516,21 +521,21 @@ def update_figure_a(selected_year, param):
             y=year_param_max.index.day,
             x=year_param_max.index.month,
             z=normal_max_diff,
-            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
+            colorscale=[[0, 'blue'],[colorscale_max, 'white'], [1, 'red']]
         ))
     elif param == 'TMIN':
         traces.append(go.Heatmap(
             y=year_param_min.index.day,
             x=year_param_min.index.month,
             z=normal_min_diff,
-            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
+            colorscale=[[0, 'blue'],[colorscale_min, 'white'], [1, 'red']]
         ))
     elif param == 'AVG':
         traces.append(go.Heatmap(
             y=year_param_avg.index.day,
             x=year_param_avg.index.month,
             z=normal_avg_diff,
-            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
+            colorscale=[[0, 'blue'],[colorscale_avg, 'white'], [1, 'red']]
         ))
     return {
         'data': traces,
