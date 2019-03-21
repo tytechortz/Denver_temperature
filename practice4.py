@@ -28,10 +28,11 @@ print(dayofyear)
 
 # daily normal temperatures
 df_norms_max = pd.read_csv('./daily_normal_max.csv')
-
 df_norms_min = pd.read_csv('./daily_normal_min.csv')
 df_norms_max_ly = pd.read_csv('./daily_normal_max_ly.csv')
 df_norms_min_ly = pd.read_csv('./daily_normal_min_ly.csv')
+df_norms_avg = pd.read_csv('./daily_normal_avg.csv')
+df_norms_avg_ly = pd.read_csv('./daily_normal_avg_ly.csv')
 
 df_old = pd.read_csv('./stapleton.csv').round(1)
 df_old['DATE'] = pd.to_datetime(df_old['DATE'])
@@ -234,7 +235,7 @@ body = dbc.Container([
             dcc.RadioItems(id='param', options=[
                 {'label':'MAX TEMP','value':'TMAX'},
                 {'label':'MIN TEMP','value':'TMIN'},
-                {'label':'AVG TEMP','value':'TAVG'},
+                {'label':'AVG TEMP','value':'AVG'},
                 ]),
             width = {'size': 3}),    
     ],
@@ -454,8 +455,10 @@ body = dbc.Container([
 def update_figure(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     traces = []
-    year_param_max = filtered_year['' + param + '']
-    year_param_min = filtered_year['' + param + '']
+    year_param_max = filtered_year['TMAX']
+    year_param_min = filtered_year['TMIN']
+    year_param_avg = filtered_year['AVG']
+    
 
     if param == 'TMAX':
         traces.append(go.Scatter(
@@ -475,6 +478,15 @@ def update_figure(selected_year, param):
             y = df_norms_min['DLY-TMIN-NORMAL'],
             name = "Normal Min T"
         ))
+    elif param == 'AVG':  
+        traces.append(go.Scatter(
+        y = year_param_avg,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_avg['DLY-AVG-NORMAL'],
+            name = "Normal Avg T"
+        ))
     return {
         'data': traces,
         'layout': go.Layout(
@@ -491,10 +503,12 @@ def update_figure(selected_year, param):
 def update_figure_a(selected_year, param):
     traces = []
     filtered_year = df[df.index.year == selected_year]
-    year_param_max = filtered_year['' + param + '']
-    year_param_min = filtered_year['' + param + '']
+    year_param_max = filtered_year['TMAX']
+    year_param_min = filtered_year['TMIN']
+    year_param_avg = filtered_year['AVG']
     normal_max_diff = year_param_max - filtered_year['MXNRM']
     normal_min_diff = year_param_min - filtered_year['MNNRM']
+    normal_avg_diff = year_param_avg - filtered_year['AVGNRM']
 
 
     if param == 'TMAX':
@@ -511,10 +525,17 @@ def update_figure_a(selected_year, param):
             z=normal_min_diff,
             colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
         ))
+    elif param == 'AVG':
+        traces.append(go.Heatmap(
+            y=year_param_avg.index.day,
+            x=year_param_avg.index.month,
+            z=normal_avg_diff,
+            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
+        ))
     return {
         'data': traces,
         'layout': go.Layout(
-            title='{}'.format(param)
+            title='{} Departure From Norm'.format(param)
         )
     }
 
@@ -641,7 +662,7 @@ def create_table_b(selection):
 
 @app.callback(Output('bar', 'figure'),
              [Input('selection', 'value')])
-def update_figure_a(selection):
+def update_figure_b(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
@@ -714,7 +735,6 @@ def update_figure_a(selection):
 @app.callback(Output('table-container', 'children'),  
               [Input('rankings', 'value')])
 def update_rankings(selected_param):
-    print(selected_param)
     if selected_param == 'acr':
         return generate_table(acr)
     elif selected_param == 'max_dt':
