@@ -514,7 +514,7 @@ def update_figure_a(selected_year, param):
     return {
         'data': traces,
         'layout': go.Layout(
-            title='Daily Max Temp'
+            title='{}'.format(param)
         )
     }
 
