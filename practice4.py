@@ -21,25 +21,47 @@ app.config['suppress_callback_exceptions']=True
 current_year = datetime.now().year
 current_day = datetime.now().day
 today = time.strftime("%Y-%m-%d")
+dayofyear = time.strftime("%j")
+dayofyear = int(dayofyear)
+print(dayofyear)
+
 
 # daily normal temperatures
 df_norms_max = pd.read_csv('./daily_normal_max.csv')
+
 df_norms_min = pd.read_csv('./daily_normal_min.csv')
 df_norms_max_ly = pd.read_csv('./daily_normal_max_ly.csv')
 df_norms_min_ly = pd.read_csv('./daily_normal_min_ly.csv')
 
-
 df_old = pd.read_csv('./stapleton.csv').round(1)
+df_old['DATE'] = pd.to_datetime(df_old['DATE'])
+df_old = df_old.set_index('DATE')
+
+
 df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard').round(1)
-df = pd.concat([df_old, df_new], ignore_index=True)
+df_new['DATE'] = pd.to_datetime(df_new['DATE'])
+df_new = df_new.set_index('DATE')
+df_new['AVG'] = (df_new['TMAX'] + df_new['TMIN']) / 2
 
+if current_year % 4 == 0:
+    df_new['MXNRM'] = df_norms_max_ly['DLY-TMAX-NORMAL'][0:len(df_new)].values
+    df_new['MNNRM'] = df_norms_min_ly['DLY-TMIN-NORMAL'][0:len(df_new)].values
+else: 
+    df_new['MXNRM'] = df_norms_max['DLY-TMAX-NORMAL'][0:len(df_new)].values
+    df_new['MNNRM'] = df_norms_min['DLY-TMIN-NORMAL'][0:len(df_new)].values
 
-df['DATE'] = pd.to_datetime(df['DATE'])
+df_new['AVGNRM'] = (df_new['MXNRM'] + df_new['MNNRM']) / 2
+print(df_new)
+print(df_old)
+df = pd.concat([df_old, df_new], ignore_index=False)
+print(df)
+
+# df['DATE'] = pd.to_datetime(df['DATE'])
 # df_100['DATE'] = pd.to_datetime(df["DATE"].year)
-df = df.set_index('DATE')
+# df = df.set_index('DATE')
 df_ya_max = df.resample('Y').mean()
 
-df.loc[:,'TAVG'] = ((df.TMAX + df.TMIN) / 2)
+# df.loc[:,'TAVG'] = ((df.TMAX + df.TMIN) / 2)
 
 # record high and low
 record_max = df.loc[df['TMAX'].idxmax()]
@@ -434,7 +456,6 @@ def update_figure(selected_year, param):
     traces = []
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year['' + param + '']
-    print(df_norms_max)
 
     if param == 'TMAX':
         traces.append(go.Scatter(
@@ -468,13 +489,28 @@ def update_figure(selected_year, param):
               [Input('year-picker', 'value'),
               Input('param', 'value')])
 def update_figure_a(selected_year, param):
+    traces = []
     filtered_year = df[df.index.year == selected_year]
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year['' + param + '']
-    df_year_param_max_ly = pd.DataFrame({'DATE':year_param_max.index, 'TMAX':year_param_max.values, 'NORM MAX':df_norms_max_ly['DLY-TMAX-NORMAL']})
-    df_year_param_min_ly = pd.DataFrame({'DATE':year_param_min.index, 'TMIN':year_param_min.values, 'NORM MIN':df_norms_min_ly['DLY-TMIN-NORMAL']})
-    df_year_param_max = pd.DataFrame({'DATE':year_param_max.index, 'TMAX':year_param_max.values, 'NORM MAX':df_norms_max['DLY-TMAX-NORMAL']})
-    df_year_param_min = pd.DataFrame({'DATE':year_param_min.index, 'TMIN':year_param_min.values, 'NORM MIN':df_norms_min['DLY-TMIN-NORMAL']})
+    # year_param_max.groupby(pd.Grouper(freq='M'))
+    
+    
+    print(year_param_max.values)
+    if param == 'TMAX':
+        traces.append(go.Heatmap(
+            y=year_param_max.index.day,
+            x=year_param_max.index.month,
+            z=year_param_max.values.tolist(),
+            colorscale='Jet'
+        ))
+    return {
+        'data': traces,
+        'layout': go.Layout(
+            title='Daily Max Temp'
+        )
+    }
+
 
 @app.callback(Output('stats', 'children'),
               [Input('year-picker', 'value')])
