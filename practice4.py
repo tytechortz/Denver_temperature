@@ -23,7 +23,7 @@ current_day = datetime.now().day
 today = time.strftime("%Y-%m-%d")
 dayofyear = time.strftime("%j")
 dayofyear = int(dayofyear)
-print(dayofyear)
+
 
 
 # daily normal temperatures
@@ -55,13 +55,7 @@ df_new['AVGNRM'] = (df_new['MXNRM'] + df_new['MNNRM']) / 2
 
 df = pd.concat([df_old, df_new], ignore_index=False)
 
-
-# df['DATE'] = pd.to_datetime(df['DATE'])
-# df_100['DATE'] = pd.to_datetime(df["DATE"].year)
-# df = df.set_index('DATE')
 df_ya_max = df.resample('Y').mean()
-
-# df.loc[:,'TAVG'] = ((df.TMAX + df.TMIN) / 2)
 
 # record high and low
 record_max = df.loc[df['TMAX'].idxmax()]
@@ -689,7 +683,7 @@ def update_figure_b(selection):
         data = [
             go.Bar(
                 x=df10['DATE'],
-                y=df10['TAVG']
+                y=df10['AVG']
             )
         ]
         layout = go.Layout(
