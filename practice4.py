@@ -51,10 +51,9 @@ else:
     df_new['MNNRM'] = df_norms_min['DLY-TMIN-NORMAL'][0:len(df_new)].values
 
 df_new['AVGNRM'] = (df_new['MXNRM'] + df_new['MNNRM']) / 2
-print(df_new)
-print(df_old)
+
 df = pd.concat([df_old, df_new], ignore_index=False)
-print(df)
+
 
 # df['DATE'] = pd.to_datetime(df['DATE'])
 # df_100['DATE'] = pd.to_datetime(df["DATE"].year)
@@ -494,6 +493,7 @@ def update_figure_a(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year['' + param + '']
+    normal_max_diff = year_param_max - filtered_year['MXNRM']
     normal_min_diff = year_param_min - filtered_year['MNNRM']
 
 
@@ -501,15 +501,15 @@ def update_figure_a(selected_year, param):
         traces.append(go.Heatmap(
             y=year_param_max.index.day,
             x=year_param_max.index.month,
-            z=year_param_max.values.tolist(),
-            colorscale='Jet'
+            z=normal_max_diff,
+            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
         ))
     elif param == 'TMIN':
         traces.append(go.Heatmap(
             y=year_param_min.index.day,
             x=year_param_min.index.month,
             z=normal_min_diff,
-            colorscale='Jet'
+            colorscale=[[0, 'blue'],[.5, 'white'], [1, 'red']]
         ))
     return {
         'data': traces,
