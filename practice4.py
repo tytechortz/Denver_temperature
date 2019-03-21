@@ -227,16 +227,17 @@ body = dbc.Container([
         dbc.Col(
             dcc.Dropdown(id='year-picker', options=year
             ),
-            width = {'size': 2}),
+            width = {'size': 3}),
         dbc.Col(
             html.H4('{}-{}-{}'.format(df.index[-1].year,df.index[-1].month,df.index[-1].day), style={'text-align': 'center'}),
-            width = {'size': 2}),
+            width = {'size': 3}),
         dbc.Col(
             dcc.RadioItems(id='param', options=[
                 {'label':'MAX TEMP','value':'TMAX'},
-                {'label':'MIN TEMP','value':'TMIN'}
+                {'label':'MIN TEMP','value':'TMIN'},
+                {'label':'AVG TEMP','value':'TAVG'},
                 ]),
-            width = {'size': 2}),    
+            width = {'size': 3}),    
     ],
     justify='around',
     ),
@@ -493,15 +494,21 @@ def update_figure_a(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     year_param_max = filtered_year['' + param + '']
     year_param_min = filtered_year['' + param + '']
-    # year_param_max.groupby(pd.Grouper(freq='M'))
-    
-    
-    print(year_param_max.values)
+    normal_min_diff = year_param_min - filtered_year['MNNRM']
+
+
     if param == 'TMAX':
         traces.append(go.Heatmap(
             y=year_param_max.index.day,
             x=year_param_max.index.month,
             z=year_param_max.values.tolist(),
+            colorscale='Jet'
+        ))
+    elif param == 'TMIN':
+        traces.append(go.Heatmap(
+            y=year_param_min.index.day,
+            x=year_param_min.index.month,
+            z=normal_min_diff,
             colorscale='Jet'
         ))
     return {
