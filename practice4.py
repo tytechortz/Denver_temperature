@@ -744,19 +744,33 @@ def update_rankings(selected_param):
 @app.callback(Output('yearly-rankings-bar', 'figure'),
              [Input('rankings', 'value')])
 def update_figure_c(selected_param):
-    print(acr)
+    print(maxdt)
     if selected_param == 'acr':
         data = [
             go.Bar(
                 x=acr['YEAR'],
                 y=acr['AVG TEMP'],
-                name='TMAX'
+                name='TAVG'
             )
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
             yaxis={'title': 'TAVG','range':[48, 55]},
             title='Avg Temp by Year'
+        )
+        return {'data': data, 'layout': layout}
+    elif selected_param == 'max_dt':
+        data = [
+            go.Bar(
+                x=maxdt['YEAR'],
+                y=maxdt['MAX TEMP'],
+                name='TMAX'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TMAX','range':[60, 69]},
+            title='Max Temp by Year'
         )
         return {'data': data, 'layout': layout}
 
