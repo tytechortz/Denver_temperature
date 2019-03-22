@@ -5,7 +5,7 @@ import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
 import pandas as pd
 import sqlite3
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import time
 # import datetime
 from datetime import datetime
@@ -13,61 +13,110 @@ from pandas import Series
 from scipy import stats
 from scipy.stats import norm 
 from numpy import arange,array,ones 
-
-
-
+import dash_table 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config['suppress_callback_exceptions']=True
 
-# cnx = sqlite3.connect('denvertemps.db')
+current_year = datetime.now().year
+current_day = datetime.now().day
+today = time.strftime("%Y-%m-%d")
+dayofyear = time.strftime("%j")
+dayofyear = int(dayofyear)
 
-pd.options.mode.chained_assignment = None  # default='warn'
 
-# df = pd.read_sql_query("SELECT * FROM temperatures", cnx)
-df = pd.read_csv('./stapleton.csv')
 
 # daily normal temperatures
-df_norms = pd.read_csv('./daily_normal_max.csv')
+df_norms_max = pd.read_csv('./daily_normal_max.csv')
+df_norms_min = pd.read_csv('./daily_normal_min.csv')
+df_norms_max_ly = pd.read_csv('./daily_normal_max_ly.csv')
+df_norms_min_ly = pd.read_csv('./daily_normal_min_ly.csv')
+df_norms_avg = pd.read_csv('./daily_normal_avg.csv')
+df_norms_avg_ly = pd.read_csv('./daily_normal_avg_ly.csv')
+
+df_old = pd.read_csv('./stapleton.csv').round(1)
+df_old['DATE'] = pd.to_datetime(df_old['DATE'])
+df_old = df_old.set_index('DATE')
 
 
-df['datetime']= pd.to_datetime(df['DATE'])
-df = df.set_index('datetime')
+df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries&dataTypes=TMAX,TMIN&stations=USW00023062&startDate=2019-01-01&endDate=' + today + '&units=standard').round(1)
+df_new['DATE'] = pd.to_datetime(df_new['DATE'])
+df_new = df_new.set_index('DATE')
+df_new['AVG'] = (df_new['TMAX'] + df_new['TMIN']) / 2
+
+if current_year % 4 == 0:
+    df_new['MXNRM'] = df_norms_max_ly['DLY-TMAX-NORMAL'][0:len(df_new)].values
+    df_new['MNNRM'] = df_norms_min_ly['DLY-TMIN-NORMAL'][0:len(df_new)].values
+else: 
+    df_new['MXNRM'] = df_norms_max['DLY-TMAX-NORMAL'][0:len(df_new)].values
+    df_new['MNNRM'] = df_norms_min['DLY-TMIN-NORMAL'][0:len(df_new)].values
+
+df_new['AVGNRM'] = (df_new['MXNRM'] + df_new['MNNRM']) / 2
+
+df = pd.concat([df_old, df_new], ignore_index=False)
+
 df_ya_max = df.resample('Y').mean()
+
+# record high and low
+record_max = df.loc[df['TMAX'].idxmax()]
+record_min = df.loc[df['TMIN'].idxmin()]
+
+df_ya_max = df.resample('Y').mean()
+df_da = df_ya_max.groupby((df_ya_max.index.year//10)*10).mean()
+
+
 # removes final year in df
 df5 = df_ya_max[:-1]
+# removes final decade in decade averages
+df10 = df_da[0:-1]
 
+# filters for completed years in current decade
+current_year_decade = current_year%10
+current_year_indexer = current_year_decade + 1
+# current year decade avg current decade
+df_da_cd = (df5[-(current_year_indexer):]).mean()
+df_da_cd['combined'] = (df_da_cd['TMAX'] + df_da_cd['TMIN']) / 2
+df5['combined'] = (df5['TMAX'] + df5['TMIN']) / 2
+# current year 90- degree days
+cy90 = df_new[df_new['TMAX']>=90]
 
+# add current decade to decade list
+df10.loc['2010'] = df_da_cd
+df10 = df10.round(1)
+df10 = df10.reset_index()
 
+# current year stats
+cy_max = df_new.loc[df_new['TMAX'].idxmax()]
+cy_min = df_new.loc[df_new['TMIN'].idxmin()]
+cy_max_mean = df_new['TMAX'].mean()
+cy_min_mean = df_new['TMIN'].mean()
 
 # filters all MAXT data for 5 year moving average
 allmax_rolling = df['TMAX'].rolling(window=1825)
 allmax_rolling_mean = allmax_rolling.mean()
-
 # filters all MINT data fr 5 year moving average
 allmin_rolling = df['TMIN'].rolling(window=1825)
 allmin_rolling_mean = allmin_rolling.mean()
 
 # sorts annual mean temps
+annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=False)
+annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=False)
 
-annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=True)
-annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=True)
+annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
+acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
+acr = acr.round(1)
+
+maxdt = pd.DataFrame({'YEAR':annual_max_mean_rankings.index.year, 'MAX TEMP':annual_max_mean_rankings.values})
+maxdt = maxdt.round(1)
+
+mindt = pd.DataFrame({'YEAR':annual_min_mean_rankings.index.year, 'MIN TEMP':annual_min_mean_rankings.values})
+mindt = mindt.round(1)
 
 
-
-
-
-startyr = 1948
+startyr = 1950
 presentyr = datetime.now().year
 year_count = presentyr-startyr
-
-
-xi = arange(0,year_count-1)
-
-year = []
-for YEAR in df.index.year.unique():
-    year.append({'label':(YEAR), 'value':YEAR})
 
 # linear fit for Avg Max Temps
 def annual_min_fit():
@@ -90,271 +139,120 @@ def all_min_temp_fit():
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMIN"])
     return (slope*xi+intercept)
 
-# year = []
-# for YEAR in df.index.year.unique():
-#     year.append({'label':(YEAR), 'value':YEAR})
+def generate_table(acr, max_rows=10):
+    return html.Table (
+        [html.Tr([html.Th(col) for col in acr.columns])] +
+        [html.Tr([
+            html.Td(acr.iloc[i][col]) for col in acr.columns
+            ]) for i in range(min(len(acr), max_rows))]
+    )
+def generate_table_maxdt(maxdt, max_rows=10):
+    return html.Table (
+        [html.Tr([html.Th(col) for col in maxdt.columns])] +
+        [html.Tr([
+            html.Td(maxdt.iloc[i][col]) for col in maxdt.columns
+            ]) for i in range(min(len(maxdt), max_rows))]
+    )
+
+def generate_table_mindt(mindt, max_rows=10):
+    return html.Table (
+        [html.Tr([html.Th(col) for col in mindt.columns])] +
+        [html.Tr([
+            html.Td(mindt.iloc[i][col]) for col in mindt.columns
+            ]) for i in range(min(len(mindt), max_rows))]
+    )
+
+# year list for dropdown selector
+year = []
+for YEAR in df.index.year.unique():
+    year.append({'label':(YEAR), 'value':YEAR})
 
 body = dbc.Container([
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':50,'font-color':'Gray'})
-            )
-        ],
-        justify='center'
+    dbc.Row([
+        dbc.Col(
+            html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':50,'font-color':'Gray'})
+        )
+    ],
+    justify='center'
     ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2('1948-PRESENT', style={'text-align':'center'})
-            )
-        ]
+    dbc.Row([
+        dbc.Col(
+            html.H2('1950-PRESENT', style={'text-align':'center'})
+        )]
     ),
-    dbc.Row(
-        [
+    dbc.Row([
+        dbc.Col(
+            html.Div(
+                html.H3('DAILY TEMPERATURES'),
+            style={'text-align':'center'}
+            ),
+        )
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.Div([
+                dcc.Graph(id='graph1'),
+            ]),
+            width={'size':6}
+        ),
+        dbc.Col(
+            html.Div([
+                dcc.Graph(id='graph2'),
+            ]),
+            width={'size':6}
+        ),
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.H2('SELECT YEAR', style={'text-align':'center'})
+        ),
+        dbc.Col(
+            html.H4('Data Updated', style={'text-align':'center'})
+        ),
+        dbc.Col(
+            html.H2('SELECT PARAMETER', style={'text-align':'center'})
+        ),
+    ]),
+    dbc.Row([
+        dbc.Col(
+            dcc.Dropdown(id='year-picker', options=year
+            ),
+            width = {'size': 3}),
+        dbc.Col(
+            html.H4('{}-{}-{}'.format(df.index[-1].year,df.index[-1].month,df.index[-1].day), style={'text-align': 'center'}),
+            width = {'size': 3}),
+        dbc.Col(
+            dcc.RadioItems(id='param', options=[
+                {'label':'MAX TEMP','value':'TMAX'},
+                {'label':'MIN TEMP','value':'TMIN'},
+                {'label':'AVG TEMP','value':'AVG'},
+                ]),
+            width = {'size': 3}),    
+    ],
+    justify='around',
+    ),
+    dbc.Row([
             dbc.Col(
                 html.Div(
-                    html.H3('DAILY TEMPERATURES'),
-                style={'text-align':'center'}
+                    html.H3(id='stats',style={'text-align':'center'}),
                 ),
             ),
-        ],
-         justify='around',
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='graph1', style={'height':700}),
-                ]),
-                width={'size':10}
-            ),
-        ],
-        justify='around',
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2('SELECT YEARS', style={'text-align':'center'})
-            )
-        ],
-        [
-            dbc.Col(
-                html.H2('SELECT PARAMETER', style={'text-align':'center'})
-            )
-        ]
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                dcc.Dropdown(id='year-picker', options=year
-                ),
-                width = {'size': 2}),
-            dbc.Col(
-                dcc.RadioItems(id='param', options=[
-                    {'label':'MAX','value':'max'},
-                    {'label':'MIN','value':'min'}
-                    ],
-                ),
-                width = {'size': 2}),    
-        ],
-        justify='around',
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2(id='stats-for-year1',style={'color': 'blue', 'text-align': 'center'}),
-                ),
-            dbc.Col(
-                html.H2(id='stats-for-year2',style={'color': 'darkorange', 'text-align': 'center'}),
-                ),       
-        ],
-        justify='around'
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2(id='Maximum-yearly-temp-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),     
-            dbc.Col(
-                html.H2(id='Minimum-yearly-temp-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='Maximum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='Minimum-yearly-temp-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),  
-        ],
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2(id='90-degree-days-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='High-below-freezing-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='90-degree-days-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='High-below-freezing-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),
-        ],
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H2(id='80-degree-days-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='Low-below-zero-1', style={'font-size':25, 'color': 'blue', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='80-degree-days-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),
-            dbc.Col(
-                html.H2(id='Low-below-zero-2', style={'font-size':25, 'color': 'darkorange', 'text-align':'center'}),
-                width=6, lg=3),
-        ],
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='combined-histogram-max', style={'height':700}),
-                ]),
-                width = {'size':4},
-            ),
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='combined-histogram-min', style={'height':700}),
-                ]),
-                width = {'size': 4},
-            )
-        ],
-        justify='around'
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.H3(id='stats-for-year1-1',style={'height':100, 'text-align': 'center'}),
-                ),
-            dbc.Col(
-                html.H3(id='stats-for-year2-2',style={'height':100, 'text-align': 'center'}),
-                ),
-        ],
-        align = 'around'
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='yearly-avg-max-trend', style={'height':700},
-                        figure = {
-                            'data': [
-                                {
-                                    'x' : df5.index, 
-                                    'y' : df5['TMAX'],
-                                    'mode' : 'lines + markers',
-                                    'name' : 'Max Temp'
-                                },
-                                {
-                                    'x' : df5.index,
-                                    'y' : annual_max_fit(),
-                                    'name' : 'trend'
-                                }
-                            ],
-                            'layout': go.Layout(
-                                xaxis = {'title': 'Date'},
-                                yaxis = {'title': 'Temp'},
-                                hovermode = 'closest',    
-                            ), 
-                        }
-                    ),
-
-                ]),
-                width = {'size': 4},
-            ),
-            dbc.Col(
-                html.Div([
-                    dcc.Graph(id='yearly-avg-min-trend', style={'height':700},
-                        figure = {
-                            'data': [
-                                {
-                                    'x' : df5.index, 
-                                    'y' : df5['TMIN'],
-                                    'mode' : 'lines + markers',
-                                    'name' : 'Min Temp'
-                                },
-                                {
-                                    'x' : df5.index,
-                                    'y' : annual_min_fit(),
-                                    'name' : 'trend'
-                                }
-                            ],
-                            'layout': go.Layout(
-                                xaxis = {'title': 'Date'},
-                                yaxis = {'title': 'Temp'},
-                                hovermode = 'closest',      
-                            ), 
-                        }
-                    ),
-
-                ]),
-                width = {'size':4},
-            ),
-        ],
-        justify='around'
-    ),
-    dbc.Row(
-        [
-            dbc.Col(
-                html.Div(
-                    html.H3('DENVER MAX TEMPS, 1948-PRESENT'),
-                style={'height':100, 'background-color':'lightsilver', 'text-align': 'center'}
-                ),
-                width = {'size':5},
-            ),
-            dbc.Col(
-                html.Div(
-                    html.H3('DENVER MIN TEMPS, 1948-PRESENT'),
-                style={'height':100, 'background-color':'lightsilver', 'text-align': 'center'}
-                ),
-                width = {'size':5}, 
-            ),
-        ],
-         justify='around',
-    ),
-
-    dbc.Row([
-            dbc.Col(
-                html.Div([
-                    html.H4('Warmest Years-Mean Max ',style={'color': 'black','font-size':20}),
-                ]),
-                width={'size':6},
-                style={'height':30, 'text-align':'center'} 
-            ),
-            dbc.Col(
-                html.Div([
-                    html.H4('Warmest Years-Mean Min',style={'color': 'black','font-size':20}),
-                ]),
-                width={'size':6},
-                style={'height':30, 'text-align':'center'} 
-            ),
-        ]),
+    ]),
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-1], annual_max_mean_rankings.index[drl-1].year)),
+                html.H5(id='yearly-high/low')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("1- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-1], annual_min_mean_rankings.index[drl-1].year)),
+                html.H5(id='mean-max/min'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -363,14 +261,14 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-2], annual_max_mean_rankings.index[drl-2].year)),
+                html.H5(id='days-above-100/below-0')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-2], annual_min_mean_rankings.index[drl-2].year)),
+                html.H5(id='days-above-90/high-below-0'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -379,14 +277,14 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-3], annual_max_mean_rankings.index[drl-3].year)),
+                html.H5(id='days-above-80/below-32')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-3], annual_min_mean_rankings.index[drl-3].year)),
+                html.H5(id='days-above-normal/below-normal'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -394,38 +292,73 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-4], annual_max_mean_rankings.index[drl-4].year)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
+            html.H2('Select Data', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            dcc.RadioItems(id='selection', options=[
+                {'label':'Decade Rankings','value':'decades'},
+                {'label':'100 Degree Days','value':'100-degrees'},
+                {'label':'90 Degree Days','value':'90-degrees'},
+                ]),
+            width = {'size': 4}), 
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            dash_table.DataTable(
+                id='temptable',
+                columns=[{}],
+                data=[{}],
+                sorting=True,
+                style_cell={'textAlign': 'center'},
+                style_as_list_view=True,
+                style_table={
+                    'maxHeight': '450',
+                    'overflowY': 'scroll'
+                },
+            ),
         ),
         dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-4], annual_min_mean_rankings.index[drl-4].year)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
+            dcc.Graph(id='bar'),
         ),
     ]),
     dbc.Row([
         dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_max_mean_rankings[drl-5], annual_max_mean_rankings.index[drl-5].year)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
+            html.H2('YEARLY RANKINGS', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.H4('Select Parameters', style={'text-align':'center'})
+        )]
+    ),
+    dbc.Row([
+        dbc.Col(
+            dcc.RadioItems(id='rankings', options=[
+                {'label':'Avg Daily Temp','value':'acr'},
+                {'label':'Max Daily Temp','value':'max_dt'},
+                {'label':'Min Daily Temp','value':'min_dt'},
+                ]),
+            width = {'size': 12}), 
+    ],
+    justify='around',
+    ),
+    dbc.Row([
+        dbc.Col(
+            html.Div(id='table-container'),
         ),
         dbc.Col(
-            html.Div([
-                html.H6("2- {:,.1f} Deg F,  {}".format(annual_min_mean_rankings[drl-5], annual_min_mean_rankings.index[drl-5].year)),
-            ]),
-            width={'size':6},
-            style={'text-align':'center'}
+            dcc.Graph(id='yearly-rankings-bar'),
         ),
     ]),
-
-
+    dbc.Row([
+        dbc.Col(
+            html.H2('1950-Present, Complete Record', style={'text-align':'center'})
+        )]
+    ),
     dbc.Row(
         [
            dbc.Col(
@@ -449,20 +382,19 @@ body = dbc.Container([
                                 xaxis = {'title': 'Date'},
                                 yaxis = {'title': 'Temp'},
                                 hovermode = 'closest',
-                                height = 1000     
+                                height = 700     
                             ), 
                         }
                     ),
-
                 ]),
-                width = {'size': 8, 'offset':2},
+                width = {'size': 10, 'offset':1},
             ), 
         ],
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H3('Max Temps 1948-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                html.H3('Max Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
                 ),
         ],
         align = 'around'
@@ -490,32 +422,26 @@ body = dbc.Container([
                                 xaxis = {'title': 'Date'},
                                 yaxis = {'title': 'Temp'},
                                 hovermode = 'closest',
-                                height = 1000     
+                                height = 700     
                             ), 
                         }
                     ),
 
                 ]),
-                width = {'size': 8, 'offset':2},
+                width = {'size': 10, 'offset':1},
             ), 
         ]
     ),
     dbc.Row(
         [
             dbc.Col(
-                html.H3('Min Temps 1948-Present, 5 Year Moving Avg', style={'height':100, 'text-align': 'center'}),
+                html.H3('Min Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
                 ),
         ],
         align = 'around'
     ),
-    dbc.Row(
-        dbc.Col(
-            html.Div(id='divider', style={'height':200, 'background-color':'silver'})    
-                ),
-    ),    
-],
-fluid = 'True'
-)
+    html.H6(id='junk')
+])
 
 @app.callback(Output('graph1', 'figure'),
               [Input('year-picker', 'value'),
@@ -523,265 +449,379 @@ fluid = 'True'
 def update_figure(selected_year, param):
     filtered_year = df[df.index.year == selected_year]
     traces = []
-    if param == max:
-        year_param = filtered_year['TMAX']
-    else:
-        year_param = filtered_year['TMIN']
-    # year_MAXT = filtered_year['TMAX']
-    # year_MINT = filtered_year["TMIN"]
+    year_param_max = filtered_year['TMAX']
+    year_param_min = filtered_year['TMIN']
+    year_param_avg = filtered_year['AVG']
+    
 
-    traces.append(go.Scatter(
-        y = year_param,
+    if param == 'TMAX':
+        traces.append(go.Scatter(
+        y = year_param_max,
         name = param
-    ))
-    traces.append(go.Scatter(
-        y = df_norms['DLY-TMAX-NORMAL'],
-        name = "Normal Max T"
-    ))
-
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_max['DLY-TMAX-NORMAL'],
+            name = "Normal Max T"
+        ))
+    elif param == 'TMIN':  
+        traces.append(go.Scatter(
+        y = year_param_min,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_min['DLY-TMIN-NORMAL'],
+            name = "Normal Min T"
+        ))
+    elif param == 'AVG':  
+        traces.append(go.Scatter(
+        y = year_param_avg,
+        name = param
+        ))
+        traces.append(go.Scatter(
+            y = df_norms_avg['DLY-AVG-NORMAL'],
+            name = "Normal Avg T"
+        ))
     return {
         'data': traces,
         'layout': go.Layout(
             xaxis = {'title': 'DAY'},
-            yaxis = {'title': 'TMAX'},
+            yaxis = {'title': 'TEMP'},
             hovermode = 'closest',
-            title = '3 Day Rolling Avg'
+            title = 'Daily Temps'
         )
     }
 
-@app.callback(Output('graph1', 'figure'),
-              [Input('year-picker1', 'value'),
-               Input('year-picker2', 'value')])
-def update_figure(selected_year1, selected_year2):
-    filtered_year1 = df[df.index.year == selected_year1]
-    filtered_year2 = df[df.index.year == selected_year2]
+@app.callback(Output('graph2', 'figure'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_figure_a(selected_year, param):
     traces = []
-    year1_rolling = filtered_year1['TMAX'].rolling(window=3)
-    year2_rolling = filtered_year2['TMAX'].rolling(window=3)
-    rolling_year1 = year1_rolling.mean()
-    rolling_year2 = year2_rolling.mean()
+    filtered_year = df[df.index.year == selected_year]
+    year_param_max = filtered_year['TMAX']
+    year_param_min = filtered_year['TMIN']
+    year_param_avg = filtered_year['AVG']
+    normal_max_diff = year_param_max - filtered_year['MXNRM']
+    normal_min_diff = year_param_min - filtered_year['MNNRM']
+    normal_avg_diff = year_param_avg - filtered_year['AVGNRM']
+    colorscale_max = ((((normal_max_diff.max() - normal_max_diff.min()) - normal_max_diff.max()) / (normal_max_diff.max() - normal_max_diff.min())))
+    colorscale_min = ((((normal_min_diff.max() - normal_min_diff.min()) - normal_min_diff.max()) / (normal_min_diff.max() - normal_min_diff.min())))
+    colorscale_avg = ((((normal_avg_diff.max() - normal_avg_diff.min()) - normal_avg_diff.max()) / (normal_avg_diff.max() - normal_avg_diff.min())))
 
-    traces.append(go.Scatter(
-        y = rolling_year1,
-        name = selected_year1
-    ))
-    traces.append(go.Scatter(
-        y = rolling_year2,
-        name = selected_year2
-    ))
 
+
+
+    if param == 'TMAX':
+        traces.append(go.Heatmap(
+            y=year_param_max.index.day,
+            x=year_param_max.index.month,
+            z=normal_max_diff,
+            colorscale=[[0, 'blue'],[colorscale_max, 'white'], [1, 'red']]
+        ))
+    elif param == 'TMIN':
+        traces.append(go.Heatmap(
+            y=year_param_min.index.day,
+            x=year_param_min.index.month,
+            z=normal_min_diff,
+            colorscale=[[0, 'blue'],[colorscale_min, 'white'], [1, 'red']]
+        ))
+    elif param == 'AVG':
+        traces.append(go.Heatmap(
+            y=year_param_avg.index.day,
+            x=year_param_avg.index.month,
+            z=normal_avg_diff,
+            colorscale=[[0, 'blue'],[colorscale_avg, 'white'], [1, 'red']]
+        ))
     return {
         'data': traces,
         'layout': go.Layout(
-            xaxis = {'title': 'YEAR'},
-            yaxis = {'title': 'TMAX'},
-            hovermode = 'closest',
-            title = '3 Day Rolling Avg'
+            title='{} Departure From Norm'.format(param)
         )
     }
 
 
-
-@app.callback(Output('stats-for-year1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_i(selected_year1):
-    return 'Stats for {}'.format(selected_year1)
-
-@app.callback(Output('stats-for-year2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_j(selected_year2):
-    return 'Stats for {}'.format(selected_year2)
-
-@app.callback(Output('Maximum-yearly-temp-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_a(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    annual_max_temp1 = filtered_df1['TMAX'].max()
-    return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp1)
-
-@app.callback(Output('Minimum-yearly-temp-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_b(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    annual_min_temp1 = filtered_df1['TMIN'].min()
-    return 'Minimum Yearly Temp: {:.0f}'.format(annual_min_temp1)
-
-@app.callback(Output('Maximum-yearly-temp-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_c(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    annual_max_temp2 = filtered_df1['TMAX'].max()
-    return 'Maximum Yearly Temp: {:.0f}'.format(annual_max_temp2)
-
-@app.callback(Output('Minimum-yearly-temp-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_d(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    annual_min_temp2 = filtered_df1['TMIN'].min()
-    return 'Minimum Yearly Temp: {:.0f}'.format(annual_min_temp2)
-
-@app.callback(Output('90-degree-days-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_e(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
-    return 'Total Days Above 90 : {}'.format(days_over_90)
-
-@app.callback(Output('High-below-freezing-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_f(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_high_below_zero = (df_max[df_max['TMAX'] < 32].count()['TMAX'])
-    return 'Days High Below Freezing : {:.0f}'.format(days_high_below_zero)
-
-@app.callback(Output('90-degree-days-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_g(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_over_90 = (df_max[df_max['TMAX'] >= 90].count()['TMAX'])
-    return 'Total Days Above 90 : {}'.format(days_over_90)
-
-@app.callback(Output('High-below-freezing-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_h(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_high_below_zero = (df_max[df_max['TMAX'] < 32].count()['TMAX'])
-    return 'Days High Below Freezing : {:.0f}'.format(days_high_below_zero)
-
-@app.callback(Output('80-degree-days-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_m(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
-    return 'Total Days Above 80 : {}'.format(days_over_80)
-
-@app.callback(Output('Low-below-zero-1', 'children'),
-              [Input('year-picker1', 'value')])
-def update_layout_n(selected_year1):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').min()
-    days_low_below_zero = (df_max[df_max['TMIN'] < 0].count()['TMIN'])
-    return 'Days Low Below 0 : {:.0f}'.format(days_low_below_zero)
-
-
-@app.callback(Output('80-degree-days-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_k(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').max()
-    days_over_80 = (df_max[df_max['TMAX'] >= 80].count()['TMAX'])
-    return 'Total Days Above 80 : {}'.format(days_over_80)
-
-@app.callback(Output('Low-below-zero-2', 'children'),
-              [Input('year-picker2', 'value')])
-def update_layout_l(selected_year2):
-    filtered_df1 = df[df.index.year == selected_year2]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    df_max = filtered_df1.resample('D').min()
-    days_low_below_zero = (df_max[df_max['TMIN'] < 0].count()['TMIN'])
-    return 'Days Low Below 0 : {:.0f}'.format(days_low_below_zero)
-
-@app.callback(Output('combined-histogram-max','figure'),
-              [Input('year-picker1', 'value'),
-              Input('year-picker2', 'value')])
-
-def update_graph_a(selected_year1,selected_year2):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    filtered_df2 = df[df.index.year == selected_year2]
-    filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
-    filtered_df2 = filtered_df2.set_index('datetime')
+@app.callback(Output('stats', 'children'),
+              [Input('year-picker', 'value')])
+def update_layout_a(selected_year):
+    return 'Stats for {}'.format(selected_year)
     
-    trace1 = go.Histogram(
-        x=filtered_df1['TMAX'],
-        opacity=.5,
-        xbins=dict(size=10),
-        name = selected_year1
-    )
+@app.callback(Output('yearly-high/low', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_b(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    yearly_max = filtered_year.loc[filtered_year['TMAX'].idxmax()]
+    yearly_min = filtered_year.loc[filtered_year['TMIN'].idxmin()]
+    if param == 'TMAX':
+        return 'Yearly High: {}'.format(yearly_max['TMAX'])
+    elif param == 'TMIN':
+        return 'Yearly Low: {}'.format(yearly_min['TMIN'])
 
-    trace2 = go.Histogram(
-        x=filtered_df2['TMAX'],
-        opacity=.5,
-        xbins=dict(size=10),
-        name = selected_year2
-    )
+@app.callback(Output('mean-max/min', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_c(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    if param == 'TMAX':
+        return 'Mean Max Temp: {:,.1f}'.format(filtered_year['TMAX'].mean())
+    elif param == 'TMIN':
+        return 'Mean Min Temp: {:,.1f}'.format(filtered_year['TMIN'].mean())
 
-    data = [trace1, trace2]
+@app.callback(Output('days-above-100/below-0', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_d(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_hundred = (filtered_year['TMAX'] >= 100).sum()
+    da_below_zero = (filtered_year['TMIN'] < 0).sum()
+    if param == 'TMAX':
+        return '100 Degree Days: {} - Normal: 1'.format(da_hundred)
+    elif param == 'TMIN':
+        return 'Days Below 0: {} - Normal: 6.7'.format(da_below_zero)
 
-    fig = go.Figure(
-        data = data,
-        layout = go.Layout(barmode='overlay')
+@app.callback(Output('days-above-90/high-below-0', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_e(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_ninety = (filtered_year['TMAX'] >= 90).sum()
+    da_high_below_32 = (filtered_year['TMAX'] < 32).sum()
+    if param == 'TMAX':
+        return '90 Degree Days: {} - Normal: 30.6'.format(da_ninety)
+    elif param == 'TMIN':
+        return 'Days High Below 32: {} - Normal: 21'.format(da_high_below_32)
+
+@app.callback(Output('days-above-80/below-32', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_f(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    da_80 = (filtered_year['TMAX'] >= 80).sum()
+    da_below_32 = (filtered_year['TMIN'] < 32).sum()
+    if param == 'TMAX':
+        return '80 Degree Days: {} - Normal: 95.5'.format(da_80)
+    elif param == 'TMIN':
+        return 'Days Below 32: {} - Normal: 156.5'.format(da_below_32)
+
+@app.callback(Output('days-above-normal/below-normal', 'children'),
+              [Input('year-picker', 'value'),
+              Input('param', 'value')])
+def update_layout_g(selected_year, param):
+    filtered_year = df[df.index.year == selected_year]
+    dmaxan = 0
+    dminan = 0
+    i = 0
+    df_norms_max.loc[i]['DLY-TMAX-NORMAL'] 
+    if param == 'TMAX':
+        while i < filtered_year["TMAX"].count():
+            if filtered_year.iloc[i]['TMAX'] > df_norms_max.iloc[i]['DLY-TMAX-NORMAL']:
+                dmaxan = dmaxan + 1
+                i = i + 1
+            else: i = i + 1    
+        return 'Days High Above Normal: {}/{}'.format(dmaxan, i)
+    elif param == 'TMIN':
+        while i < filtered_year["TMIN"].count():
+            if filtered_year.iloc[i]['TMIN'] < df_norms_min.iloc[i]['DLY-TMIN-NORMAL']:
+                dminan = dminan + 1
+                i = i + 1
+            else: i = i + 1
+        return 'Days Low Below Normal: {}/{}'.format(dminan, i)
+
+@app.callback(Output('temptable', 'columns'),
+             [Input('selection', 'value')])
+def update_table_a(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'DATE':df_100_count.index.year, '100 Degree Days':df_100_count.values})
+    df_90 = df[df['TMAX']>=90]
+    df_90_count = df_90.resample('Y').count()['TMAX']
+    # convert series to dataframe
+    df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
+    if selection == 'decades':
+        return [{'name': i, 'id': i} for i in df10.columns]
+    elif selection == '100-degrees':
+        return [{'name': i, 'id': i} for i in df_100.columns]
+    elif selection == '90-degrees':
+        return [{'name': i, 'id': i} for i in df_90.columns]
+        
+@app.callback(Output('temptable', 'data'),
+             [Input('selection', 'value')])
+def create_table_b(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'DATE':df_100_count.index.year, '100 Degree Days':df_100_count.values})
+    df_90 = df[df['TMAX']>=90]
+    df_90_count = df_90.resample('Y').count()['TMAX']
+    df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
+    if selection == 'decades':
+        return df10.to_dict('records')
+    elif selection == '100-degrees':
+        return df_100.to_dict('records')
+    elif selection == '90-degrees':
+        return df_90.to_dict('records')
+
+@app.callback(Output('bar', 'figure'),
+             [Input('selection', 'value')])
+def update_figure_b(selection):
+    df_100 = df[df['TMAX']>=100]
+    df_100_count = df_100.resample('Y').count()['TMAX']
+    df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
+    # trend line
+    def hundred_fit():
+        xi = arange(0,year_count-4)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_100['100 Degree Days'])
+        return (slope*xi+intercept)
+    # 90 Degree Days
+    df_90 = df[df['TMAX']>=90]
+    df_90_count = df_90.resample('Y').count()['TMAX']
+    df_90 = pd.DataFrame({'DATE':df_90_count.index, '90 Degree Days':df_90_count.values})
+    # trend line
+    def ninety_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_90['90 Degree Days'])
+        return (slope*xi+intercept)
+    if selection == 'decades':
+        data = [
+            go.Bar(
+                x=df10['DATE'],
+                y=df10['AVG']
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TAVG','range':[49, 52]},
+            title='Avg Temp by Decade'
         )
-    return fig
+        return {'data': data, 'layout': layout} 
+    elif selection == '100-degrees':
+        data = [
+            go.Bar(
+                x=df_100['DATE'],
+                y=df_100['100 Degree Days'],
+                name='100 F Days'
+            ),
+            go.Scatter(
+                x=df_100['DATE'],
+                y=hundred_fit(),
+                name='trend'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': '100 Degree Days'},
+            title='100 Degree Days Per Year'
+        ) 
+        return {'data': data, 'layout': layout}
+    elif selection == '90-degrees':
+        data = [
+            go.Bar(
+                x=df_90['DATE'],
+                y=df_90['90 Degree Days'],
+                name='90 F Days'
+            ),
+            go.Scatter(
+                x=df_90['DATE'],
+                y=ninety_fit(),
+                name='trend'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': '90 Degree Days'},
+            title='90 Degree Days Per Year'
+        ) 
+        return {'data': data, 'layout': layout}
 
-
-# Histogram of minimum daily temps for two selected years
-@app.callback(Output('combined-histogram-min','figure'),
-              [Input('year-picker1', 'value'),
-              Input('year-picker2', 'value')])
-
-def update_graph_b(selected_year1,selected_year2):
-    filtered_df1 = df[df.index.year == selected_year1]
-    filtered_df1['datetime'] = pd.to_datetime(filtered_df1['DATE'])
-    filtered_df1 = filtered_df1.set_index('datetime')
-    filtered_df2 = df[df.index.year == selected_year2]
-    filtered_df2['datetime'] = pd.to_datetime(filtered_df2['DATE'])
-    filtered_df2 = filtered_df2.set_index('datetime')
+@app.callback(Output('table-container', 'children'),  
+              [Input('rankings', 'value')])
+def update_rankings(selected_param):
+    if selected_param == 'acr':
+        return generate_table(acr)
+    elif selected_param == 'max_dt':
+        return generate_table_maxdt(maxdt)
+    elif selected_param == 'min_dt':
+        return generate_table_mindt(mindt)
     
-    trace1 = go.Histogram(
-        x = filtered_df1['TMIN'],
-        opacity = .5,
-        xbins = dict(size = 10),
-        name = selected_year1
-    )
-
-    trace2 = go.Histogram(
-        x = filtered_df2['TMIN'],
-        opacity = .5,
-        xbins = dict(size=10),
-        name = selected_year2
-    )
-
-    data = [trace1, trace2]
-
-    fig = go.Figure(
-        data = data,
-        layout = go.Layout(barmode='overlay')
+@app.callback(Output('yearly-rankings-bar', 'figure'),
+             [Input('rankings', 'value')])
+def update_figure_c(selected_param):
+    print(df5)
+    # def annual_max_fit():
+    # xi = arange(0,year_count)
+    # slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    # return (slope*xi+intercept)
+    def avg_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['AVG'])
+        return (slope*xi+intercept)
+    def max_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['TMAX'])
+        return (slope*xi+intercept)
+    def min_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['TMIN'])
+        return (slope*xi+intercept)
+    if selected_param == 'acr':
+        data = [
+            go.Bar(
+                x=acr['YEAR'],
+                y=acr['AVG TEMP'],
+                name='TAVG'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=avg_fit(),
+                name='trend'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TAVG','range':[48, 55]},
+            title='Avg Temp by Year'
         )
-    return fig
+        return {'data': data, 'layout': layout}
+    elif selected_param == 'max_dt':
+        data = [
+            go.Bar(
+                x=maxdt['YEAR'],
+                y=maxdt['MAX TEMP'],
+                name='TMAX'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=max_fit(),
+                name='trend'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TMAX','range':[60, 69]},
+            title='Max Temp by Year'
+        )
+        return {'data': data, 'layout': layout}
+    elif selected_param == 'min_dt':
+        data = [
+            go.Bar(
+                x=mindt['YEAR'],
+                y=mindt['MIN TEMP'],
+                name='TMIN'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=min_fit(),
+                name='trend'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TMIN','range':[33, 41]},
+            title='Min Temp by Year'
+        )
+        return {'data': data, 'layout': layout}
 
-@app.callback(Output('stats-for-year1-1', 'children'),
-              [Input('year-picker1', 'value'),
-              Input('year-picker2', 'value')])
-def update_layout_o(selected_year1, selected_year2):
-    return 'Max Temps: {} and {}'.format(selected_year1,selected_year2)
+       
 
-@app.callback(Output('stats-for-year2-2', 'children'),
-              [Input('year-picker2', 'value'),
-              Input('year-picker1', 'value')])
-def update_layout_p(selected_year2, selected_year1):
-    return 'Min Temps: {} and {}'.format(selected_year1,selected_year2)
+
 
 app.layout = html.Div(body)
 
