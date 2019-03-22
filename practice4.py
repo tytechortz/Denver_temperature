@@ -749,9 +749,17 @@ def update_figure_c(selected_param):
     # xi = arange(0,year_count)
     # slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
     # return (slope*xi+intercept)
-    def acr_fit():
+    def avg_fit():
         xi = arange(0,year_count)
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['AVG'])
+        return (slope*xi+intercept)
+    def max_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['TMAX'])
+        return (slope*xi+intercept)
+    def min_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['TMIN'])
         return (slope*xi+intercept)
     if selected_param == 'acr':
         data = [
@@ -762,7 +770,7 @@ def update_figure_c(selected_param):
             ),
             go.Scatter(
                 x=df5.index.year,
-                y=acr_fit(),
+                y=avg_fit(),
                 name='trend'
             )
         ]
@@ -778,6 +786,11 @@ def update_figure_c(selected_param):
                 x=maxdt['YEAR'],
                 y=maxdt['MAX TEMP'],
                 name='TMAX'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=max_fit(),
+                name='trend'
             )
         ]
         layout = go.Layout(
@@ -792,6 +805,11 @@ def update_figure_c(selected_param):
                 x=mindt['YEAR'],
                 y=mindt['MIN TEMP'],
                 name='TMIN'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=min_fit(),
+                name='trend'
             )
         ]
         layout = go.Layout(
