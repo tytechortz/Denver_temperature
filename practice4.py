@@ -744,13 +744,26 @@ def update_rankings(selected_param):
 @app.callback(Output('yearly-rankings-bar', 'figure'),
              [Input('rankings', 'value')])
 def update_figure_c(selected_param):
-    print(mindt)
+    print(df5)
+    # def annual_max_fit():
+    # xi = arange(0,year_count)
+    # slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    # return (slope*xi+intercept)
+    def acr_fit():
+        xi = arange(0,year_count)
+        slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['AVG'])
+        return (slope*xi+intercept)
     if selected_param == 'acr':
         data = [
             go.Bar(
                 x=acr['YEAR'],
                 y=acr['AVG TEMP'],
                 name='TAVG'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=acr_fit(),
+                name='trend'
             )
         ]
         layout = go.Layout(
