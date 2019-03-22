@@ -170,20 +170,20 @@ for YEAR in df.index.year.unique():
 body = dbc.Container([
     dbc.Row([
         dbc.Col(
-            html.H1('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':50,'font-color':'Gray'})
+            html.H3('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':30,'font-color':'Gray'})
         )
     ],
     justify='center'
     ),
     dbc.Row([
         dbc.Col(
-            html.H2('1950-PRESENT', style={'text-align':'center'})
+            html.H5('1950-PRESENT', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
         dbc.Col(
             html.Div(
-                html.H3('DAILY TEMPERATURES'),
+                html.H6('DAILY TEMPERATURES'),
             style={'text-align':'center'}
             ),
         )
@@ -208,13 +208,13 @@ body = dbc.Container([
     ),
     dbc.Row([
         dbc.Col(
-            html.H2('SELECT YEAR', style={'text-align':'center'})
+            html.H5('SELECT YEAR', style={'text-align':'center'})
         ),
         dbc.Col(
-            html.H4('Data Updated', style={'text-align':'center'})
+            html.H6('Data Updated', style={'text-align':'center'})
         ),
         dbc.Col(
-            html.H2('SELECT PARAMETER', style={'text-align':'center'})
+            html.H5('SELECT PARAMETER', style={'text-align':'center'})
         ),
     ]),
     dbc.Row([
@@ -223,7 +223,7 @@ body = dbc.Container([
             ),
             width = {'size': 3}),
         dbc.Col(
-            html.H4('{}-{}-{}'.format(df.index[-1].year,df.index[-1].month,df.index[-1].day), style={'text-align': 'center'}),
+            html.H5('{}-{}-{}'.format(df.index[-1].year,df.index[-1].month,df.index[-1].day), style={'text-align': 'center'}),
             width = {'size': 3}),
         dbc.Col(
             dcc.RadioItems(id='param', options=[
@@ -238,21 +238,21 @@ body = dbc.Container([
     dbc.Row([
             dbc.Col(
                 html.Div(
-                    html.H3(id='stats',style={'text-align':'center'}),
+                    html.H5(id='stats',style={'text-align':'center'}),
                 ),
             ),
     ]),
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H5(id='yearly-high/low')
+                html.H6(id='yearly-high/low')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H5(id='mean-max/min'),
+                html.H6(id='mean-max/min'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -261,14 +261,14 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H5(id='days-above-100/below-0')
+                html.H6(id='days-above-100/below-0')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H5(id='days-above-90/high-below-0'),
+                html.H6(id='days-above-90/high-below-0'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -277,14 +277,14 @@ body = dbc.Container([
     dbc.Row([
         dbc.Col(
             html.Div([
-                html.H5(id='days-above-80/below-32')
+                html.H6(id='days-above-80/below-32')
             ]),
             width={'size':6},
             style={'text-align':'center'}
         ),
         dbc.Col(
             html.Div([
-                html.H5(id='days-above-normal/below-normal'),
+                html.H6(id='days-above-normal/below-normal'),
             ]),
             width={'size':6},
             style={'text-align':'center'}
@@ -292,7 +292,7 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('Select Data', style={'text-align':'center'})
+            html.H5('Select Data', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
@@ -302,9 +302,10 @@ body = dbc.Container([
                 {'label':'100 Degree Days','value':'100-degrees'},
                 {'label':'90 Degree Days','value':'90-degrees'},
                 ]),
-            width = {'size': 4}), 
+            width = {'size': 5,'display': 'inline-block'},
+        ),
     ],
-    justify='around',
+    justify='center',     
     ),
     dbc.Row([
         dbc.Col(
@@ -327,12 +328,12 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('YEARLY RANKINGS', style={'text-align':'center'})
+            html.H4('YEARLY RANKINGS', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
         dbc.Col(
-            html.H4('Select Parameters', style={'text-align':'center'})
+            html.H6('Select Parameters', style={'text-align':'center'})
         )]
     ),
     dbc.Row([
@@ -342,9 +343,9 @@ body = dbc.Container([
                 {'label':'Max Daily Temp','value':'max_dt'},
                 {'label':'Min Daily Temp','value':'min_dt'},
                 ]),
-            width = {'size': 12}), 
+            width = {'size': 4,'display': 'inline-block'}), 
     ],
-    justify='around',
+    justify='center',
     ),
     dbc.Row([
         dbc.Col(
@@ -356,7 +357,7 @@ body = dbc.Container([
     ]),
     dbc.Row([
         dbc.Col(
-            html.H2('1950-Present, Complete Record', style={'text-align':'center'})
+            html.H4('1950-Present, Complete Record', style={'text-align':'center'})
         )]
     ),
     dbc.Row(
@@ -394,7 +395,7 @@ body = dbc.Container([
     dbc.Row(
         [
             dbc.Col(
-                html.H3('Max Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                html.H5('Max Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
                 ),
         ],
         align = 'around'
@@ -435,12 +436,11 @@ body = dbc.Container([
     dbc.Row(
         [
             dbc.Col(
-                html.H3('Min Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                html.H5('Min Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
                 ),
         ],
         align = 'around'
     ),
-    html.H6(id='junk')
 ])
 
 @app.callback(Output('graph1', 'figure'),
@@ -487,7 +487,8 @@ def update_figure(selected_year, param):
             xaxis = {'title': 'DAY'},
             yaxis = {'title': 'TEMP'},
             hovermode = 'closest',
-            title = 'Daily Temps'
+            title = 'Daily Temps',
+            height = 400
         )
     }
 
@@ -534,7 +535,10 @@ def update_figure_a(selected_year, param):
     return {
         'data': traces,
         'layout': go.Layout(
-            title='{} Departure From Norm'.format(param)
+            title='{} Departure From Norm'.format(param),
+            xaxis={'title':'MONTH'},
+            yaxis={'title':'DAY'},
+            height= 400
         )
     }
 
@@ -744,11 +748,8 @@ def update_rankings(selected_param):
 @app.callback(Output('yearly-rankings-bar', 'figure'),
              [Input('rankings', 'value')])
 def update_figure_c(selected_param):
-    print(df5)
-    # def annual_max_fit():
-    # xi = arange(0,year_count)
-    # slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
-    # return (slope*xi+intercept)
+    annual_mean=acr['AVG TEMP'].mean()
+    annual_mean_list = [annual_mean for x in range(df5['AVG'].count())] 
     def avg_fit():
         xi = arange(0,year_count)
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['AVG'])
@@ -772,6 +773,11 @@ def update_figure_c(selected_param):
                 x=df5.index.year,
                 y=avg_fit(),
                 name='trend'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=annual_mean_list,
+                name='mean'
             )
         ]
         layout = go.Layout(
@@ -820,8 +826,6 @@ def update_figure_c(selected_param):
         return {'data': data, 'layout': layout}
 
        
-
-
 
 app.layout = html.Div(body)
 
