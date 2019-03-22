@@ -351,7 +351,7 @@ body = dbc.Container([
             html.Div(id='table-container'),
         ),
         dbc.Col(
-            dcc.Graph(id='heat'),
+            dcc.Graph(id='yearly-rankings-bar'),
         ),
     ]),
     dbc.Row([
@@ -741,8 +741,26 @@ def update_rankings(selected_param):
     elif selected_param == 'min_dt':
         return generate_table_mindt(mindt)
     
-    
-        
+@app.callback(Output('yearly-rankings-bar', 'figure'),
+             [Input('rankings', 'value')])
+def update_figure_c(selected_param):
+    print(acr)
+    if selected_param == 'acr':
+        data = [
+            go.Bar(
+                x=acr['YEAR'],
+                y=acr['AVG TEMP'],
+                name='TMAX'
+            )
+        ]
+        layout = go.Layout(
+            xaxis={'title': 'Year'},
+            yaxis={'title': 'TAVG','range':[48, 55]},
+            title='Avg Temp by Year'
+        )
+        return {'data': data, 'layout': layout}
+
+       
 
 
 
