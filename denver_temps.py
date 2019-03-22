@@ -748,8 +748,9 @@ def update_rankings(selected_param):
 @app.callback(Output('yearly-rankings-bar', 'figure'),
              [Input('rankings', 'value')])
 def update_figure_c(selected_param):
-    annual_mean=acr['AVG TEMP'].mean()
-    annual_mean_list = [annual_mean for x in range(df5['AVG'].count())] 
+    annual_mean = [acr['AVG TEMP'].mean() for x in range(df5['AVG'].count())]
+    annual_max_mean = [maxdt['MAX TEMP'].mean() for x in range(df5['AVG'].count())] 
+    annual_min_mean = [mindt['MIN TEMP'].mean() for x in range(df5['AVG'].count())] 
     def avg_fit():
         xi = arange(0,year_count)
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5['AVG'])
@@ -776,7 +777,7 @@ def update_figure_c(selected_param):
             ),
             go.Scatter(
                 x=df5.index.year,
-                y=annual_mean_list,
+                y=annual_mean,
                 name='mean'
             )
         ]
@@ -797,6 +798,11 @@ def update_figure_c(selected_param):
                 x=df5.index.year,
                 y=max_fit(),
                 name='trend'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=annual_max_mean,
+                name='mean'
             )
         ]
         layout = go.Layout(
@@ -816,6 +822,11 @@ def update_figure_c(selected_param):
                 x=df5.index.year,
                 y=min_fit(),
                 name='trend'
+            ),
+            go.Scatter(
+                x=df5.index.year,
+                y=annual_min_mean,
+                name='mean'
             )
         ]
         layout = go.Layout(
