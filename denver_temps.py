@@ -181,11 +181,14 @@ for YEAR in df.index.year.unique():
 body = dbc.Container([
     dbc.Row([
         dbc.Col(
-            html.H3('DENVER TEMPERATURE RECORD', style={'text-align':'center', 'font-size':30,'font-color':'Gray'})
-        )
-    ],
-    justify='center'
-    ),
+            html.Div(
+                className='app-header',
+                children=[
+                    html.Div('DENVER TEMPERATURE RECORD', className="app-header--title"),
+                ]
+            ),
+        ),
+    ]),
     dbc.Row([
         dbc.Col(
             html.H5('1950-PRESENT', style={'text-align':'center'})
@@ -246,12 +249,16 @@ body = dbc.Container([
     ],
     justify='around',
     ),
-    dbc.Row([
-            dbc.Col(
-                html.Div(
-                    html.H5(id='stats',style={'text-align':'center'}),
+    html.Div(
+        className="stats",
+        children=[
+            dbc.Row([
+                dbc.Col(
+                    html.Div(
+                        html.H5(id='stats',style={'text-align':'center'}),
+                    ),
                 ),
-            ),
+        ]),
     ]),
     dbc.Row([
         dbc.Col(
@@ -509,29 +516,35 @@ def update_figure(selected_year, param):
     if param == 'TMAX':
         traces.append(go.Scatter(
         y = year_param_max,
-        name = param
+        name = param,
+        line = {'color':'red'} 
         ))
         traces.append(go.Scatter(
             y = df_norms_max['DLY-TMAX-NORMAL'],
-            name = "Normal Max T"
+            name = "Normal Max T",
+            line = {'color':'black'}
         ))
     elif param == 'TMIN':  
         traces.append(go.Scatter(
         y = year_param_min,
-        name = param
+        name = param,
+        line = {'color':'dodgerblue'}
         ))
         traces.append(go.Scatter(
             y = df_norms_min['DLY-TMIN-NORMAL'],
-            name = "Normal Min T"
+            name = "Normal Min T",
+            line = {'color':'black'}
         ))
     elif param == 'AVG':  
         traces.append(go.Scatter(
         y = year_param_avg,
-        name = param
+        name = param,
+        line = {'color':'black'}
         ))
         traces.append(go.Scatter(
             y = df_norms_avg['DLY-AVG-NORMAL'],
-            name = "Normal Avg T"
+            name = "Normal Avg T",
+            line = {'color':''}
         ))
     return {
         'data': traces,
@@ -739,13 +752,15 @@ def update_figure_b(selection):
         data = [
             go.Bar(
                 x=df10['DATE'],
-                y=df10['AVG']
+                y=df10['AVG'],
+                marker = {'color':'dodgerblue'}
             )
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
             yaxis={'title': 'TAVG','range':[49, 52]},
-            title='Avg Temp by Decade'
+            title='Avg Temp by Decade',
+            plot_bgcolor = 'lightgray',
         )
         return {'data': data, 'layout': layout} 
     elif selection == '100-degrees':
@@ -753,18 +768,21 @@ def update_figure_b(selection):
             go.Bar(
                 x=df_100['DATE'],
                 y=df_100['100 Degree Days'],
-                name='100 F Days'
+                name='100 F Days',
+                marker = {'color':'dodgerblue'}
             ),
             go.Scatter(
                 x=df_100['DATE'],
                 y=hundred_fit(),
-                name='trend'
+                name='trend',
+                line = {'color':'red'}
             )
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
             yaxis={'title': '100 Degree Days'},
-            title='100 Degree Days Per Year'
+            title='100 Degree Days Per Year',
+            plot_bgcolor = 'lightgray',
         ) 
         return {'data': data, 'layout': layout}
     elif selection == '90-degrees':
@@ -772,18 +790,23 @@ def update_figure_b(selection):
             go.Bar(
                 x=df_90['DATE'],
                 y=df_90['90 Degree Days'],
-                name='90 F Days'
+                name='90 F Days',
+                marker = {'color':'dodgerblue'}
             ),
             go.Scatter(
                 x=df_90['DATE'],
                 y=ninety_fit(),
-                name='trend'
+                name='trend',
+                line = {'color':'red'}
             )
         ]
         layout = go.Layout(
             xaxis={'title': 'Year'},
             yaxis={'title': '90 Degree Days'},
-            title='90 Degree Days Per Year'
+            title='90 Degree Days Per Year',
+            plot_bgcolor = 'lightgray',
+            hoverlabel = {'bgcolor':'red'},
+            
         ) 
         return {'data': data, 'layout': layout}
 
@@ -825,12 +848,14 @@ def update_figure_c(selected_param):
             go.Scatter(
                 x=df5.index.year,
                 y=avg_fit(),
-                name='trend'
+                name='trend',
+                line = {'color':'red'}
             ),
             go.Scatter(
                 x=df5.index.year,
                 y=annual_mean,
-                name='mean'
+                name='mean',
+                line = {'color':'black'}
             )
         ]
         layout = go.Layout(
@@ -849,12 +874,14 @@ def update_figure_c(selected_param):
             go.Scatter(
                 x=df5.index.year,
                 y=max_fit(),
-                name='trend'
+                name='trend',
+                line = {'color':'red'}
             ),
             go.Scatter(
                 x=df5.index.year,
                 y=annual_max_mean,
-                name='mean'
+                name='mean',
+                line = {'color':'black'}
             )
         ]
         layout = go.Layout(
@@ -873,12 +900,14 @@ def update_figure_c(selected_param):
             go.Scatter(
                 x=df5.index.year,
                 y=min_fit(),
-                name='trend'
+                name='trend',
+                line = {'color':'red'}
             ),
             go.Scatter(
                 x=df5.index.year,
                 y=annual_min_mean,
-                name='mean'
+                name='mean',
+                line = {'color':'black'}
             )
         ]
         layout = go.Layout(

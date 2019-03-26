@@ -1,7 +1,7 @@
 
 body {
     font-family: sans-serif;
-    background-color: aliceblue
+    background-color: lightgray
 }
 
 .divider {
@@ -17,7 +17,9 @@ table {
     /* table-layout: fixed; */
     width: 100%;
     border-collapse: collapse;
-    border: 3px solid blue;
+    border: 3px solid dodgerblue;
+    font-family: sans-serif;
+    font-size: 15px
 }
 
 thead th:nth-child(1) {
