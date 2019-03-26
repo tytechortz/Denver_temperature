@@ -43,6 +43,7 @@ df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=
 df_new['DATE'] = pd.to_datetime(df_new['DATE'])
 df_new = df_new.set_index('DATE')
 df_new['AVG'] = (df_new['TMAX'] + df_new['TMIN']) / 2
+print(df_new.iloc[-1])
 
 if current_year % 4 == 0:
     df_new['MXNRM'] = df_norms_max_ly['DLY-TMAX-NORMAL'][0:len(df_new)].values
@@ -91,6 +92,9 @@ cy_min = df_new.loc[df_new['TMIN'].idxmin()]
 cy_max_mean = df_new['TMAX'].mean()
 cy_min_mean = df_new['TMIN'].mean()
 
+# filters all AVGT data for 5 year moving average
+allavg_rolling = df['AVG'].rolling(window=1825)
+allavg_rolling_mean = allavg_rolling.mean()
 # filters all MAXT data for 5 year moving average
 allmax_rolling = df['TMAX'].rolling(window=1825)
 allmax_rolling_mean = allmax_rolling.mean()
@@ -102,6 +106,7 @@ allmin_rolling_mean = allmin_rolling.mean()
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=False)
 annual_min_mean_rankings = df5['TMIN'].sort_values(axis=0, ascending=False)
 
+
 annual_combined_rankings = df5['combined'].sort_values(axis=0, ascending=False)
 drl = annual_max_mean_rankings.size
 acr = pd.DataFrame({'YEAR':annual_combined_rankings.index.year, 'AVG TEMP':annual_combined_rankings.values})
@@ -112,6 +117,7 @@ maxdt = maxdt.round(1)
 
 mindt = pd.DataFrame({'YEAR':annual_min_mean_rankings.index.year, 'MIN TEMP':annual_min_mean_rankings.values})
 mindt = mindt.round(1)
+
 
 
 startyr = 1950
@@ -127,6 +133,11 @@ def annual_min_fit():
 def annual_max_fit():
     xi = arange(0,year_count)
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["TMAX"])
+    return (slope*xi+intercept)
+
+def all_avg_temp_fit():
+    xi = arange(0,year_count)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df5["AVG"])
     return (slope*xi+intercept)
 
 def all_max_temp_fit():
@@ -359,6 +370,47 @@ body = dbc.Container([
         dbc.Col(
             html.H4('1950-Present, Complete Record', style={'text-align':'center'})
         )]
+    ),
+    dbc.Row(
+        [
+           dbc.Col(
+                html.Div([
+                    dcc.Graph(id='all-avg-temps',  
+                        figure = {
+                            'data': [
+                                {
+                                    'x' : df.index, 
+                                    'y' : allavg_rolling_mean,
+                                    'mode' : 'lines + markers',
+                                    'name' : 'Max Temp'
+                                },
+                                {
+                                    'x' : df5.index,
+                                    'y' : all_avg_temp_fit(),
+                                    'name' : 'trend'
+                                }
+                            ],
+                            'layout': go.Layout(
+                                xaxis = {'title': 'Date'},
+                                yaxis = {'title': 'Temp'},
+                                hovermode = 'closest',
+                                height = 700     
+                            ), 
+                        }
+                    ),
+
+                ]),
+                width = {'size': 10, 'offset':1},
+            ), 
+        ]
+    ),
+    dbc.Row(
+        [
+            dbc.Col(
+                html.H5('Avg Temps 1950-Present, 5 Year Moving Avg', style={'height':50, 'text-align': 'center'}),
+                ),
+        ],
+        align = 'around'
     ),
     dbc.Row(
         [
