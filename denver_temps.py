@@ -18,12 +18,14 @@ import dash_table
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 app.config['suppress_callback_exceptions']=True
 
+
+
 current_year = datetime.now().year
 current_day = datetime.now().day
 today = time.strftime("%Y-%m-%d")
 dayofyear = time.strftime("%j")
 dayofyear = int(dayofyear)
-
+print(today)
 
 
 # daily normal temperatures
@@ -43,7 +45,8 @@ df_new = pd.read_csv('https://www.ncei.noaa.gov/access/services/data/v1?dataset=
 df_new['DATE'] = pd.to_datetime(df_new['DATE'])
 df_new = df_new.set_index('DATE')
 df_new['AVG'] = (df_new['TMAX'] + df_new['TMIN']) / 2
-print(df_new.iloc[-1])
+
+print(df_new)
 
 if current_year % 4 == 0:
     df_new['MXNRM'] = df_norms_max_ly['DLY-TMAX-NORMAL'][0:len(df_new)].values
@@ -101,6 +104,8 @@ allmax_rolling_mean = allmax_rolling.mean()
 # filters all MINT data fr 5 year moving average
 allmin_rolling = df['TMIN'].rolling(window=1825)
 allmin_rolling_mean = allmin_rolling.mean()
+
+# all_min_temp_mean = allmin_rolling.mean()
 
 # sorts annual mean temps
 annual_max_mean_rankings = df5['TMAX'].sort_values(axis=0, ascending=False)
@@ -389,7 +394,7 @@ body = dbc.Container([
                                     'x' : df.index, 
                                     'y' : allavg_rolling_mean,
                                     'mode' : 'lines + markers',
-                                    'name' : 'Max Temp'
+                                    'name' : 'Avg Temp'
                                 },
                                 {
                                     'x' : df5.index,
@@ -470,13 +475,13 @@ body = dbc.Container([
                                     'x' : df.index, 
                                     'y' : allmin_rolling_mean,
                                     'mode' : 'lines + markers',
-                                    'name' : 'Max Temp'
+                                    'name' : 'Min Temp'
                                 },
                                 {
                                     'x' : df5.index,
                                     'y' : all_min_temp_fit(),
                                     'name' : 'trend'
-                                }
+                                },
                             ],
                             'layout': go.Layout(
                                 xaxis = {'title': 'Date'},
@@ -544,7 +549,7 @@ def update_figure(selected_year, param):
         traces.append(go.Scatter(
             y = df_norms_avg['DLY-AVG-NORMAL'],
             name = "Normal Avg T",
-            line = {'color':''}
+            line = {'color':'black'}
         ))
     return {
         'data': traces,
@@ -553,7 +558,8 @@ def update_figure(selected_year, param):
             yaxis = {'title': 'TEMP'},
             hovermode = 'closest',
             title = 'Daily Temps',
-            height = 400
+            height = 400,
+
         )
     }
 
@@ -705,6 +711,7 @@ def update_table_a(selection):
     df_90_count = df_90.resample('Y').count()['TMAX']
     # convert series to dataframe
     df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
+    print(df10)
     if selection == 'decades':
         return [{'name': i, 'id': i} for i in df10.columns]
     elif selection == '100-degrees':
@@ -734,6 +741,7 @@ def update_figure_b(selection):
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
+    df_100_mean = [df_100['100 Degree Days'].mean() for x in range(df5['AVG'].count())]
     # trend line
     def hundred_fit():
         xi = arange(0,year_count-4)
@@ -743,6 +751,7 @@ def update_figure_b(selection):
     df_90 = df[df['TMAX']>=90]
     df_90_count = df_90.resample('Y').count()['TMAX']
     df_90 = pd.DataFrame({'DATE':df_90_count.index, '90 Degree Days':df_90_count.values})
+    df_90_mean = [df_90['90 Degree Days'].mean() for x in range(df5['AVG'].count())]
     # trend line
     def ninety_fit():
         xi = arange(0,year_count)
@@ -776,6 +785,12 @@ def update_figure_b(selection):
                 y=hundred_fit(),
                 name='trend',
                 line = {'color':'red'}
+            ),
+            go.Scatter(
+                x=df_100['DATE'],
+                y=df_100_mean,
+                name='mean',
+                line = {'color':'black'}
             )
         ]
         layout = go.Layout(
@@ -798,6 +813,12 @@ def update_figure_b(selection):
                 y=ninety_fit(),
                 name='trend',
                 line = {'color':'red'}
+            ),
+            go.Scatter(
+                x=df_90['DATE'],
+                y=df_90_mean,
+                name='mean',
+                line = {'color':'black'}
             )
         ]
         layout = go.Layout(
