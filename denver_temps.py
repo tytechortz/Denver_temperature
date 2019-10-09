@@ -25,7 +25,7 @@ current_day = datetime.now().day
 today = time.strftime("%Y-%m-%d")
 dayofyear = time.strftime("%j")
 dayofyear = int(dayofyear)
-print(today)
+
 
 
 # daily normal temperatures
@@ -46,7 +46,7 @@ df_new['DATE'] = pd.to_datetime(df_new['DATE'])
 df_new = df_new.set_index('DATE')
 df_new['AVG'] = (df_new['TMAX'] + df_new['TMIN']) / 2
 
-print(df_new)
+# print(df_new)
 
 if current_year % 4 == 0:
     df_new['MXNRM'] = df_norms_max_ly['DLY-TMAX-NORMAL'][0:len(df_new)].values
@@ -128,6 +128,7 @@ mindt = mindt.round(1)
 startyr = 1950
 presentyr = datetime.now().year
 year_count = presentyr-startyr
+print(year_count)
 
 # linear fit for Avg Max Temps
 def annual_min_fit():
@@ -711,7 +712,7 @@ def update_table_a(selection):
     df_90_count = df_90.resample('Y').count()['TMAX']
     # convert series to dataframe
     df_90 = pd.DataFrame({'DATE':df_90_count.index.year, '90 Degree Days':df_90_count.values})
-    print(df10)
+    # print(df10)
     if selection == 'decades':
         return [{'name': i, 'id': i} for i in df10.columns]
     elif selection == '100-degrees':
@@ -738,13 +739,15 @@ def create_table_b(selection):
 @app.callback(Output('bar', 'figure'),
              [Input('selection', 'value')])
 def update_figure_b(selection):
+    print(selection)
     df_100 = df[df['TMAX']>=100]
     df_100_count = df_100.resample('Y').count()['TMAX']
     df_100 = pd.DataFrame({'DATE':df_100_count.index, '100 Degree Days':df_100_count.values})
     df_100_mean = [df_100['100 Degree Days'].mean() for x in range(df5['AVG'].count())]
     # trend line
+    print(df_100)
     def hundred_fit():
-        xi = arange(0,year_count-4)
+        xi = arange(0,df_100.shape[0])
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_100['100 Degree Days'])
         return (slope*xi+intercept)
     # 90 Degree Days
@@ -754,7 +757,7 @@ def update_figure_b(selection):
     df_90_mean = [df_90['90 Degree Days'].mean() for x in range(df5['AVG'].count())]
     # trend line
     def ninety_fit():
-        xi = arange(0,year_count)
+        xi = arange(0,df_90.shape[0])
         slope, intercept, r_value, p_value, std_err = stats.linregress(xi,df_90['90 Degree Days'])
         return (slope*xi+intercept)
     if selection == 'decades':
